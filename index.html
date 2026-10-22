@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Math in Motion</title>
+<style>
+:root{color-scheme:light;--bg:#e9eef5;--card:#fbfcfe;--ink:#121826;--muted:#5a667c;--line:#d3dbe8;--c1:#2563eb;--c2:#e11d74;--c3:#0f9d8a;--c4:#6d4aff;--tint:#e6eeff;--on:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0c111b;--card:#121927;--ink:#e8edf7;--muted:#93a0b8;--line:#26314a;--c1:#6ea0ff;--c2:#ff6fa8;--c3:#2fd3bd;--c4:#a592ff;--tint:#182340;--on:#0b1020}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0c111b;--card:#121927;--ink:#e8edf7;--muted:#93a0b8;--line:#26314a;--c1:#6ea0ff;--c2:#ff6fa8;--c3:#2fd3bd;--c4:#a592ff;--tint:#182340;--on:#0b1020}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:880px;margin:0 auto;padding:22px 16px 36px}
+h1{font:700 clamp(30px,7vw,44px)/1.05 "Avenir Next","Segoe UI Variable Display","Segoe UI",system-ui,sans-serif;letter-spacing:-.03em;margin:0 0 6px}
+.sub{color:var(--muted);margin:0 0 18px}
+nav{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;margin-bottom:14px;max-height:236px;overflow-y:auto;padding:2px}nav button[hidden]{display:none}
+.tools{margin-bottom:12px}
+#q{width:100%;min-height:44px;padding:0 14px;margin-bottom:10px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:inherit;appearance:none;-webkit-appearance:none}
+#q::placeholder{color:var(--muted)}
+.cats{display:flex;flex-wrap:wrap;gap:8px}
+.cats button{min-height:40px;padding:0 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.cats button span{margin-left:6px;font-weight:500;opacity:.65}
+.cats button[aria-pressed=true]{background:var(--c1);border-color:var(--c1);color:var(--on)}
+.tags{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--c3);margin-bottom:4px}
+nav button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 4px 10px;min-height:44px;background:var(--card);color:var(--muted);border:1.5px solid var(--line);border-radius:14px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:color .15s,border-color .15s,background .15s}
+nav button svg{width:32px;height:32px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+nav button[aria-selected=true]{color:var(--c1);border-color:var(--c1);background:var(--tint)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--c1);outline-offset:2px}
+.stage{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+canvas{display:block;width:100%;touch-action:pan-y}
+canvas.drag{touch-action:none;cursor:grab}
+.info{padding:16px 18px 4px;border-top:1px solid var(--line)}
+.info h2{font:700 22px/1.2 "Avenir Next","Segoe UI",system-ui,sans-serif;letter-spacing:-.01em;margin:0 0 8px}
+.formula{display:inline-block;font:600 17px ui-monospace,Menlo,Consolas,monospace;background:var(--tint);color:var(--c1);padding:4px 10px;border-radius:8px;margin-bottom:8px}
+.info p{margin:0 0 12px;color:var(--muted);max-width:68ch}
+.read{min-height:3.2em;font:14px/1.6 ui-monospace,Menlo,Consolas,monospace;padding:10px 12px;background:var(--bg);border-radius:10px;margin:0 0 14px}
+.k1{color:var(--c1)}.k2{color:var(--c2)}.k3{color:var(--c3)}
+.ctl{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:0 18px 16px}
+.ctl button{min-height:44px;padding:0 16px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-weight:600;cursor:pointer}
+.ctl button.p{background:var(--c1);border-color:var(--c1);color:var(--on)}
+.ctl label{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+input[type=range]{accent-color:var(--c1);min-height:44px}
+#tl{flex:1 1 160px;min-width:120px}
+#sp{width:90px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Math in Motion</h1>
+<noscript><p class="sub"><b>The animations need JavaScript.</b> This looks like a file preview. Open the file in a web browser such as Safari, Chrome or Firefox instead.</p></noscript>
+<p class="sub">Pick a theorem and watch it unfold.</p>
+<div class="tools">
+<input id="q" type="search" placeholder="Search animations" aria-label="Search animations" autocomplete="off">
+<div class="cats" id="cats" role="group" aria-label="Categories"></div>
+</div>
+<nav id="nav" role="tablist" aria-label="Theorems">
+<button role="tab" aria-selected="true"><svg viewBox="0 0 30 30"><path d="M5 25V6l20 19z"/><path d="M5 20h5v5"/></svg>Pythagorean</button>
+<button role="tab" aria-selected="false"><svg viewBox="0 0 30 30"><path d="M6 6h18v18H6z"/><path d="M6 16c3-2.5 6 2.5 9 0s6-2.5 9 0V24H6z" fill="currentColor" fill-opacity=".25"/></svg>Water demo</button>
+<button role="tab" aria-selected="false"><svg viewBox="0 0 30 30"><path d="M3 25h24"/><circle cx="11" cy="19" r="6"/><path d="M13 25c1-15 10-15 13-1" stroke-dasharray="2 3"/></svg>Cycloid</button>
+<button role="tab" aria-selected="false"><svg viewBox="0 0 30 30"><path d="M3 15h24" opacity=".35"/><path d="M3 15C7 2 11 2 15 15s8 13 12 0"/></svg>Sine wave</button>
+<button role="tab" aria-selected="false"><svg viewBox="0 0 30 30"><circle cx="15" cy="15" r="11"/><path d="M2 15h26M15 2v26" opacity=".35"/><path d="M15 15l8-8"/><circle cx="23" cy="7" r="1.8" fill="currentColor"/></svg>Unit circle</button>
+<button role="tab" aria-selected="false"><svg viewBox="0 0 30 30"><circle cx="15" cy="15" r="11"/><path d="M15 4l9.5 5.5v11L15 26l-9.5-5.5v-11z"/></svg>Calculating π</button>
+<button role="tab" aria-selected="false"><svg viewBox="0 0 30 30"><rect x="4" y="4" width="22" height="22" rx="2"/><circle cx="15" cy="15" r="11"/><g fill="currentColor" stroke="none"><circle cx="12" cy="11" r="1.3"/><circle cx="18" cy="17" r="1.3"/><circle cx="14" cy="20" r="1.3"/><circle cx="6.5" cy="6.5" r="1.3"/><circle cx="23.5" cy="22.5" r="1.3"/></g></svg>Monte Carlo</button>
+<button role="tab" aria-selected="false"><svg viewBox="0 0 30 30"><path d="M3 25C14 24 21 19 26 5"/><path d="M10.6 27L25.8 10.2" opacity=".6"/><circle cx="18.9" cy="17.8" r="2" fill="currentColor"/></svg>Derivative eˣ</button>
+<button role="tab" aria-selected="false"><svg viewBox="0 0 30 30"><path d="M4 26h22" opacity=".4"/><path d="M4 18C9 8 15 22 26 8"/><path d="M4 18C7 12 10 11 14 15.5V26H4z" fill="currentColor" fill-opacity=".25" stroke="none"/></svg>Fundamental theorem</button>
+<button role="tab" aria-selected="false"><svg viewBox="0 0 30 30"><path d="M4 26h22" opacity=".4"/><path d="M5 21h5v5H5zM10 18h5v8h-5zM15 14h5v12h-5zM20 9h5v17h-5z"/><path d="M5 22C12 20 19 13 26 6" opacity=".6"/></svg>Riemann sum</button>
+<button role="tab" aria-selected="false"><svg viewBox="0 0 30 30"><path d="M4 10C9 3 12 11 15 8S22 4 26 7"/><path d="M4 14Q15 24 26 14" opacity=".7"/><path d="M4 27L26 21" opacity=".5"/></svg>f, f′, f″</button>
+<button role="tab" aria-selected="false"><svg viewBox="0 0 30 30"><path d="M3 15Q9 -5 15 15T27 15"/><path d="M3 5C9 5 9 25 15 25S21 5 27 5" opacity=".6" stroke-dasharray="2 3"/></svg>Derivative sin x</button>
+<button role="tab" aria-selected="false"><svg viewBox="0 0 30 30"><path d="M5 8l5 1.5M13 8l5 3M21 8l4 4M5 15l5 .5M13 15l5 2M21 15l4 3M5 22l5-1.5M13 22l5 .5M21 22l4 2"/><path d="M3 25C10 25 17 12 27 5" opacity=".55"/></svg>Slope field</button>
+<button role="tab" aria-selected="false"><svg viewBox="0 0 30 30"><path d="M5 4v22h22" opacity=".5"/><path d="M6 7L22 25"/><path d="M9 8.5l-2.5 2.5M13.5 13.5L11 16M18 18.5L15.5 21" opacity=".7"/></svg>Related rates</button>
+<button role="tab" aria-selected="false"><svg viewBox="0 0 30 30"><path d="M4 25C12 25 21 18 27 5"/><path d="M10 27L28 14" opacity=".6"/><circle cx="17" cy="21" r="1.8" fill="currentColor"/></svg>Tangent line</button>
+<button role="tab" aria-selected="false"><svg viewBox="0 0 30 30"><path d="M4 24C10 6 14 26 27 8"/><path d="M4 24L27 8" opacity=".5" stroke-dasharray="2 3"/><path d="M11 13L21 6" opacity=".8"/></svg>Mean value theorem</button>
+<button role="tab" aria-selected="false"><svg viewBox="0 0 30 30"><path d="M4 24C12 24 16 6 27 6"/><path d="M3 15h24" stroke-dasharray="2 3" opacity=".6"/><circle cx="15.5" cy="15" r="2" fill="currentColor"/></svg>Intermediate value</button>
+<button role="tab" aria-selected="false"><svg viewBox="0 0 30 30"><path d="M4 20C8 6 14 6 17 16S24 24 27 10"/><path d="M3 5h24M3 26h24" stroke-dasharray="2 3" opacity=".6"/></svg>Extreme value</button>
+<button role="tab" aria-selected="false"><svg viewBox="0 0 30 30"><rect x="3" y="10" width="15" height="10" rx="5"/><rect x="12" y="10" width="15" height="10" rx="5"/></svg>Chain rule</button>
+<button role="tab" aria-selected="false"><svg viewBox="0 0 30 30"><path d="M5 22a10 10 0 0 1 20 0"/><path d="M15 22l5-8"/><path d="M4 26h22" opacity=".5"/></svg>Bolt: speed</button>
+<button role="tab" aria-selected="false"><svg viewBox="0 0 30 30"><path d="M3 15Q9 -5 15 15T27 15" opacity=".5"/><path d="M7 25C11 21 13 15 15 15S19 9 23 5"/></svg>Taylor series</button>
+<button role="tab" aria-selected="false"><svg viewBox="0 0 30 30"><path d="M5 5h20L15 26z"/><path d="M9.5 12h11L15 22.5z" fill="currentColor" fill-opacity=".3" stroke="none"/></svg>Cone rates</button>
+<button role="tab" aria-selected="false"><svg viewBox="0 0 30 30"><path d="M4 27h23" opacity=".5"/><path d="M6 27V6"/><circle cx="6" cy="5.5" r="2.2" fill="currentColor"/><path d="M16 27v-7"/><circle cx="16" cy="18" r="1.7" fill="currentColor"/><path d="M16 27h10" stroke-width="3" opacity=".55"/><path d="M6 6L26 27" opacity=".4" stroke-dasharray="2 3"/></svg>Lamp shadow</button>
+<button role="tab" aria-selected="false"><svg viewBox="0 0 30 30"><path d="M6 5Q15 25 24 5"/><path d="M3 24h24" stroke-dasharray="2 3" opacity=".6"/><circle cx="15" cy="10" r="1.8" fill="currentColor"/></svg>Parabola</button>
+<button role="tab" aria-selected="false"><svg viewBox="0 0 30 30"><ellipse cx="15" cy="15" rx="12" ry="8"/><circle cx="9.5" cy="15" r="1.7" fill="currentColor"/><circle cx="20.5" cy="15" r="1.7" fill="currentColor"/><path d="M9.5 15L15 7l5.5 8" opacity=".6"/></svg>Ellipse</button>
+<button role="tab" aria-selected="false"><svg viewBox="0 0 30 30"><path d="M4 5L26 25M4 25L26 5" opacity=".5" stroke-dasharray="2 3"/><path d="M27 4Q17 15 27 26M3 4Q13 15 3 26"/></svg>Hyperbola</button>
+<button role="tab" aria-selected="false"><svg viewBox="0 0 30 30"><path d="M15 25C5 23 4 11 10 9C13 8 15 10 15 12C15 10 17 8 20 9C26 11 25 23 15 25Z"/><path d="M15 15L27 6" opacity=".5"/><circle cx="15" cy="15" r="1.6" fill="currentColor"/></svg>Polar graphs</button>
+</nav>
+<p class="sub" id="none" hidden>No animations match. Try another category or search.</p>
+<div class="stage">
+<canvas id="cv" role="img" aria-label="Animated math diagram"></canvas>
+<div class="info">
+<div class="tags" id="tg"></div>
+<h2 id="ti"></h2>
+<div class="formula" id="fo"></div>
+<p id="de"></p>
+<div class="read" id="rd"></div>
+</div>
+<div class="ctl">
+<button class="p" id="pp">❚❚ Pause</button>
+<button id="rs">↺ Restart</button>
+<input type="range" id="tl" min="0" max="1000" value="0" aria-label="Timeline">
+<label>Speed <input type="range" id="sp" min="0.25" max="2" step="0.25" value="1"><span id="spv">1×</span></label>
+</div>
+</div>
+</div>
+<script>
+(()=>{
+const TAU=Math.PI*2,cv=document.getElementById('cv'),c=cv.getContext('2d'),$=id=>document.getElementById(id);
+const lerp=(a,b,t)=>a+(b-a)*t,clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x)),ss=t=>t*t*(3-2*t);
+const f3=v=>(Math.abs(v)<5e-4?0:v).toFixed(3);
+let W=0,H=0,dpr=1,cur=0,T=0,playing=true,speed=1,last=0,lastRead='',drag=false;
+
+function fit(){const w=cv.parentElement.clientWidth;if(!w)return;dpr=Math.min(window.devicePixelRatio||1,2);W=w;H=Math.round((w<560?w*.95:Math.min(w*.56,470))*(typeof S[cur].tall==='function'?S[cur].tall(w):(S[cur].tall||1)));cv.style.height=H+'px';cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr)}
+function colors(){const s=getComputedStyle(document.documentElement),g=n=>s.getPropertyValue(n).trim();return{ink:g('--ink'),muted:g('--muted'),line:g('--line'),card:g('--card'),c1:g('--c1'),c2:g('--c2'),c3:g('--c3'),c4:g('--c4')}}
+
+const ln=(x1,y1,x2,y2,col,w=2,d)=>{c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.strokeStyle=col;c.lineWidth=w;c.setLineDash(d||[]);c.stroke();c.setLineDash([])};
+const dot=(x,y,r,col,ring)=>{c.beginPath();c.arc(x,y,r,0,TAU);c.fillStyle=col;c.fill();if(ring){c.strokeStyle=ring;c.lineWidth=2;c.stroke()}};
+const tx=(s,x,y,col,sz=14,al='center')=>{c.font='600 '+sz+'px system-ui,sans-serif';c.fillStyle=col;c.textAlign=al;c.textBaseline='middle';c.fillText(s,x,y)};
+const circ=(x,y,r,col,w=2)=>{c.beginPath();c.arc(x,y,r,0,TAU);c.strokeStyle=col;c.lineWidth=w;c.stroke()};
+const path=(n,fn,col,w,dash)=>{c.beginPath();for(let i=0;i<=n;i++){const p=fn(i/n);i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1])}c.strokeStyle=col;c.lineWidth=w;c.setLineDash(dash||[]);c.stroke();c.setLineDash([])};
+
+function grid(k){c.globalAlpha=.45;for(let x=0;x<W;x+=28)ln(x,0,x,H,k.line,1);for(let y=0;y<H;y+=28)ln(0,y,W,y,k.line,1);c.globalAlpha=1}
+
+/* 1 · Pythagorean theorem: the rearrangement proof */
+const cen=p=>[(p[0][0]+p[1][0]+p[2][0])/3,(p[0][1]+p[1][1]+p[2][1])/3];
+const FROM=[[[0,0],[3,0],[0,4]],[[7,0],[7,3],[3,0]],[[7,7],[4,7],[7,3]],[[0,7],[0,4],[4,7]]];
+const TO=[[[0,3],[3,3],[0,7]],[[7,0],[7,3],[3,0]],[[3,7],[0,7],[3,3]],[[3,3],[3,0],[7,3]]];
+function pyth(k){
+ const a=3,b=4,s=7,S=Math.min(H-36,W-32,430),u=S/s,ox=(W-S)/2,oy=(H-S)/2;
+ const ph=T<.5?T*2:2-T*2,e=ss(clamp((ph-.15)/.7));
+ const P=(x,y)=>[ox+x*u,oy+y*u];
+ const poly=(pts,fill,al,st)=>{c.beginPath();pts.forEach((p,i)=>{const q=P(p[0],p[1]);i?c.lineTo(q[0],q[1]):c.moveTo(q[0],q[1])});c.closePath();if(fill){c.globalAlpha=al;c.fillStyle=fill;c.fill();c.globalAlpha=1}if(st){c.strokeStyle=st;c.lineWidth=2;c.stroke()}};
+ poly([[0,0],[s,0],[s,s],[0,s]],k.muted,.08,k.line);
+ poly([[a,0],[s,a],[b,s],[0,b]],k.c3,(1-e)*.5);
+ poly([[0,0],[a,0],[a,a],[0,a]],k.c1,e*.55);
+ poly([[a,a],[s,a],[s,s],[a,s]],k.c2,e*.55);
+ FROM.forEach((p,i)=>{
+  const q=TO[i],cp=cen(p),cq=cen(q);
+  let th=Math.atan2(q[1][1]-q[0][1],q[1][0]-q[0][0])-Math.atan2(p[1][1]-p[0][1],p[1][0]-p[0][0]);
+  th=((th+Math.PI)%TAU+TAU)%TAU-Math.PI;
+  const f=th*e,co=Math.cos(f),si=Math.sin(f),mx=lerp(cp[0],cq[0],e),my=lerp(cp[1],cq[1],e);
+  const v=p.map(z=>{const x=z[0]-cp[0],y=z[1]-cp[1];return[mx+x*co-y*si,my+x*si+y*co]});
+  poly(v,k.c4,.85,k.card);
+  const R=v[0],A=v[1],B=v[2],nA=Math.hypot(A[0]-R[0],A[1]-R[1]),nB=Math.hypot(B[0]-R[0],B[1]-R[1]);
+  const ax=(A[0]-R[0])/nA*.5,ay=(A[1]-R[1])/nA*.5,bx=(B[0]-R[0])/nB*.5,by=(B[1]-R[1])/nB*.5;
+  const m1=P(R[0]+ax,R[1]+ay),m2=P(R[0]+ax+bx,R[1]+ay+by),m3=P(R[0]+bx,R[1]+by);
+  c.beginPath();c.moveTo(m1[0],m1[1]);c.lineTo(m2[0],m2[1]);c.lineTo(m3[0],m3[1]);c.strokeStyle=k.card;c.lineWidth=1.5;c.stroke();
+ });
+ const lab=(t,x,y,al)=>{const q=P(x,y);c.globalAlpha=al;tx(t,q[0],q[1],k.ink,Math.max(16,u*.5));c.globalAlpha=1};
+ lab('c²',3.5,3.5,1-e);lab('a²',1.5,1.5,e);lab('b²',5,5,e);
+ return e<.5?'3-4-5 triangles · empty space = <span class="k3">c² = 5² = 25</span>':'3-4-5 triangles · empty space = <span class="k1">a² = 9</span> + <span class="k2">b² = 16</span> = 25 = c²';
+}
+
+/* 2 · Cycloid */
+function cyc(k){
+ const r=Math.min((W-44)/(TAU+2),H*.27),g=H*.8,x0=(W-TAU*r)/2,th=TAU*clamp(T/.88);
+ const pt=t=>[x0+r*(t-Math.sin(t)),g-r*(1-Math.cos(t))];
+ ln(14,g,W-14,g,k.muted,2);
+ path(120,t=>pt(TAU*t),k.line,2,[5,6]);
+ path(Math.max(2,Math.ceil(th/TAU*160)),t=>pt(th*t),k.c2,3.5);
+ const cx=x0+r*th,cy=g-r,px=cx-r*Math.sin(th),py=cy+r*Math.cos(th);
+ ln(x0,g,cx,g,k.c1,4);dot(cx,g,4.5,k.c1);
+ c.beginPath();c.arc(cx,cy,r,0,TAU);c.globalAlpha=.1;c.fillStyle=k.c1;c.fill();c.globalAlpha=1;c.strokeStyle=k.ink;c.lineWidth=2;c.stroke();
+ ln(cx,cy,px,py,k.ink,2);dot(cx,cy,3.5,k.ink);dot(px,py,7,k.c2,k.card);
+ return 'θ = <b>'+Math.round(th*180/Math.PI)+'°</b> · x = r(θ − sin θ) = <span class="k1">'+(th-Math.sin(th)).toFixed(2)+'r</span> · y = r(1 − cos θ) = <span class="k2">'+(1-Math.cos(th)).toFixed(2)+'r</span>';
+}
+
+/* 3 · Sine wave */
+function sine(k){
+ const R=Math.min(H*.32,W*.15),cx=R+26,cy=H/2,x0=cx+R+40,x1=W-18,kx=(x1-x0)/TAU,th=TAU*clamp(T/.92);
+ ln(10,cy,x1+8,cy,k.muted,1.5);ln(cx,cy-R-14,cx,cy+R+14,k.line,1.5);
+ [[.5,'π/2'],[1,'π'],[1.5,'3π/2'],[2,'2π']].forEach(m=>{const x=x0+m[0]*Math.PI*kx;ln(x,cy-R,x,cy+R,k.line,1,[3,4]);tx(m[1],x,cy+R+24,k.muted,12)});
+ circ(cx,cy,R,k.muted,2);
+ path(120,t=>[x0+t*TAU*kx,cy-R*Math.sin(t*TAU)],k.line,2,[5,6]);
+ path(Math.max(2,Math.ceil(th/TAU*160)),t=>[x0+t*th*kx,cy-R*Math.sin(t*th)],k.c2,3.5);
+ const px=cx+R*Math.cos(th),py=cy-R*Math.sin(th),wx=x0+th*kx;
+ c.beginPath();c.arc(cx,cy,R*.22,0,-th,true);c.strokeStyle=k.c3;c.lineWidth=2.5;c.stroke();
+ ln(cx,cy,px,py,k.ink,2);ln(px,cy,px,py,k.c1,3.5);ln(px,py,wx,py,k.c2,1.5,[4,4]);
+ dot(px,py,7,k.c4,k.card);dot(wx,py,6,k.c2,k.card);
+ return 'θ = <b>'+Math.round(th*180/Math.PI)+'°</b> ('+(th/Math.PI).toFixed(2)+'π) · height = sin θ = <span class="k2">'+f3(Math.sin(th))+'</span>';
+}
+
+/* 4 · Unit circle */
+function unit(k){
+ const R=Math.min(H*.34,W*.26),cx=W/2,cy=H/2,th=TAU*T,co=Math.cos(th),si=Math.sin(th),px=cx+R*co,py=cy-R*si;
+ const lim=H/2-16,off=Math.abs(co)<.002?1e9:-R*si/co,showTan=Math.abs(off)<=lim;
+ ln(cx-R-34,cy,cx+R+34,cy,k.muted,1.5);ln(cx,cy-R-24,cx,cy+R+24,k.muted,1.5);
+ ln(cx+R,cy-lim,cx+R,cy+lim,k.line,1.5,[4,5]);
+ circ(cx,cy,R,k.ink,2);
+ [0,30,45,60,90,120,135,150,180,210,225,240,270,300,315,330].forEach(d=>{const a=d*Math.PI/180,x=cx+R*Math.cos(a),y=cy-R*Math.sin(a);dot(x,y,2.8,k.muted);if(W>480||d%90===0)tx(d+'°',cx+(R+19)*Math.cos(a),cy-(R+19)*Math.sin(a),k.muted,11)});
+ if(showTan)ln(cx,cy,cx+R,cy+off,k.line,1.5,[4,4]);
+ const ty=clamp(off,-lim,lim);ln(cx+R,cy,cx+R,cy+ty,k.c3,3.5);
+ ln(cx,cy,px,cy,k.c1,4);ln(px,cy,px,py,k.c2,4);
+ c.beginPath();c.arc(cx,cy,R*.26,0,-th,true);c.strokeStyle=k.c4;c.lineWidth=2.5;c.stroke();
+ ln(cx,cy,px,py,k.ink,2);
+ if(Math.abs(co*R)>30)tx('cos',(cx+px)/2,cy+(si>=0?15:-15),k.c1,13);
+ if(Math.abs(si*R)>18&&Math.abs(co*R)>26)tx('sin',px+(co>=0?9:-9),(cy+py)/2,k.c2,13,co>=0?'left':'right');
+ if(Math.abs(ty)>20)tx('tan',cx+R+9,cy+ty/2,k.c3,13,'left');
+ dot(px,py,8,k.c4,k.card);
+ const tn=Math.abs(co)<.005?'undefined':f3(si/co);
+ return 'θ = <b>'+Math.round(th*180/Math.PI)+'°</b> ('+(th/Math.PI).toFixed(2)+'π) · <span class="k1">cos θ = '+f3(co)+'</span> · <span class="k2">sin θ = '+f3(si)+'</span> · <span class="k3">tan θ = '+tn+'</span>';
+}
+
+/* water demo helpers */
+function clipY(p,L){const o=[];for(let i=0;i<p.length;i++){const a=p[i],b=p[(i+1)%p.length],ai=a[1]>=L,bi=b[1]>=L;if(ai)o.push(a);if(ai!==bi){const t=(L-a[1])/(b[1]-a[1]);o.push([a[0]+t*(b[0]-a[0]),L])}}return o}
+function areaOf(p){let s=0;for(let i=0;i<p.length;i++){const q=p[(i+1)%p.length];s+=p[i][0]*q[1]-q[0]*p[i][1]}return Math.abs(s)/2}
+function fillPoly(p,frac){if(frac<=0)return[];if(frac>=.999)return p;const ys=p.map(z=>z[1]);let lo=Math.min.apply(null,ys),hi=Math.max.apply(null,ys);const tot=areaOf(p);for(let i=0;i<24;i++){const m=(lo+hi)/2;if(areaOf(clipY(p,m))>frac*tot)lo=m;else hi=m}return clipY(p,(lo+hi)/2)}
+/* Pythagorean water demo: the board flips and gravity moves the water */
+const WS=[[[0,0],[0,-3],[-3,-3],[-3,0]],[[0,0],[4,0],[4,4],[0,4]],[[0,-3],[4,0],[7,-4],[3,-7]]],WA=[9,16,25],PV=[2,-1.5],WN=1400,WDUR=14;
+const wrot=(p,f)=>{const x=p[0]-PV[0],y=p[1]-PV[1],co=Math.cos(f),si=Math.sin(f);return[PV[0]+x*co-y*si,PV[1]+x*si+y*co]};
+function wphi(t){let a=0;if(t>.64)a=2;else if(t>.46)a=1+ss((t-.46)/.18);else if(t>.3)a=1;else if(t>.12)a=ss((t-.12)/.18);return a*Math.PI-Math.atan(.75)}
+function wlvl(p,v){const ys=p.map(z=>z[1]);let lo=Math.min.apply(null,ys),hi=Math.max.apply(null,ys);if(v>=areaOf(p)-1e-9)return lo;if(v<=1e-9)return hi;for(let i=0;i<30;i++){const m=(lo+hi)/2;if(areaOf(clipY(p,m))>v)lo=m;else hi=m}return(lo+hi)/2}
+let WSIM=null;
+function wsim(){
+ if(WSIM)return WSIM;
+ const v=[9,16,0],out=[],dt=WDUR/WN;
+ for(let n=0;n<=WN;n++){
+  const f=wphi(n/WN),R=WS.map(s=>s.map(p=>wrot(p,f))),L=R.map((p,i)=>wlvl(p,v[i])),fl=[0,0];
+  if(n<WN)[[0,[0,-3]],[1,[4,0]]].forEach(o=>{
+   const i=o[0],y=wrot(o[1],f)[1],d=Math.max(0,y-L[i])-Math.max(0,y-L[2]);
+   if(Math.abs(d)<.01)return;
+   const from=d>0?i:2,to=d>0?2:i,q=Math.min(Math.max(4*Math.abs(d),.8)*dt,v[from],WA[to]-v[to]);
+   v[from]-=q;v[to]+=q;fl[i]=(d>0?q:-q)/dt;
+  });
+  out.push({v:v.slice(),fl:fl,f:f});
+ }
+ return WSIM=out;
+}
+function wob(t){const d=(a,b)=>t>a&&t<b?.04*Math.exp(-(t-a)*16)*Math.sin((t-a)*70)*Math.min(1,(b-t)*30):0;return d(.3,.46)+d(.64,1.01)}
+function waterSpin(k){
+ const s=wsim()[Math.round(clamp(T)*WN)],fd=t=>wphi(t)+wob(t),f=fd(T),u=(Math.min(W,H)/2-10)/6.5,cx=W/2,cy=H/2,now=performance.now();
+ const ag=Math.abs(fd(T+.003)-fd(T-.003))/.006,amp=.7+Math.min(5,ag*.22+Math.abs(s.fl[0]+s.fl[1])*.12);
+ const R=WS.map(sq=>sq.map(p=>wrot(p,f))),P=p=>{const r=wrot(p,f);return[cx+(r[0]-PV[0])*u,cy+(r[1]-PV[1])*u]};
+ const trace=p=>{c.beginPath();p.forEach((z,i)=>i?c.lineTo(z[0],z[1]):c.moveTo(z[0],z[1]));c.closePath()};
+ const lvY=j=>cy+(wlvl(R[j],s.v[j])-PV[1])*u;
+ let g=c.createLinearGradient(0,0,W,H);g.addColorStop(0,'#26409a');g.addColorStop(1,'#141c52');c.fillStyle=g;c.fillRect(0,0,W,H);
+ for(let i=0;i<9;i++){const x=W*(i+.5)/9,w=W/14;g=c.createLinearGradient(x-w,0,x+w,0);g.addColorStop(0,'rgba(255,255,255,0)');g.addColorStop(.5,'rgba(255,255,255,'+(.05+.03*Math.sin(i*2.3))+')');g.addColorStop(1,'rgba(255,255,255,0)');c.fillStyle=g;c.fillRect(x-w,0,2*w,H)}
+ g=c.createRadialGradient(cx,cy,Math.min(W,H)*.25,cx,cy,Math.max(W,H)*.75);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,.45)');c.fillStyle=g;c.fillRect(0,0,W,H);
+ const BR=6.45*u;
+ c.save();c.shadowColor='rgba(0,0,0,.5)';c.shadowBlur=22;c.shadowOffsetY=10;c.beginPath();c.arc(cx,cy,BR,0,TAU);c.fillStyle='#eef0f3';c.fill();c.restore();
+ g=c.createRadialGradient(cx-BR*.3,cy-BR*.35,BR*.1,cx,cy,BR);g.addColorStop(0,'rgba(255,255,255,.9)');g.addColorStop(1,'rgba(150,160,180,.35)');
+ c.beginPath();c.arc(cx,cy,BR,0,TAU);c.fillStyle=g;c.fill();c.lineWidth=5;c.strokeStyle='#c9ced8';c.stroke();
+ for(let i=0;i<8;i++){const a=i*TAU/8+.2+f;dot(cx+Math.cos(a)*BR*.93,cy+Math.sin(a)*BR*.93,2.2,'#7f8798')}
+ const Q=WS.map(sq=>sq.map(P));
+ Q.forEach((p,i)=>{
+  trace(p);c.fillStyle='rgba(120,150,180,.14)';c.fill();
+  const fr=s.v[i]/WA[i],xs=p.map(z=>z[0]),ys=p.map(z=>z[1]);
+  if(fr>.002){
+   const x0=Math.min.apply(null,xs)-8,x1=Math.max.apply(null,xs)+8,y0=Math.min.apply(null,ys)-8,y1=Math.max.apply(null,ys)+8;
+   const Ls=lvY(i),full=fr>.995,A=full?0:amp*clamp(4*fr*(1-fr));
+   const top=x=>full?y0-4:Ls+A*Math.sin(x*.05+now/260)+A*.5*Math.sin(x*.12-now/190);
+   const wave=()=>{c.beginPath();c.moveTo(x0,top(x0));for(let x=x0+6;x<=x1;x+=6)c.lineTo(x,top(x))};
+   c.save();trace(p);c.clip();
+   wave();c.lineTo(x1,y1);c.lineTo(x0,y1);c.closePath();
+   const lo=Math.max(Ls,y0),gr=c.createLinearGradient(0,lo,0,lo+Math.max(50,u*3.5));
+   gr.addColorStop(0,'rgba(130,230,240,.82)');gr.addColorStop(1,'rgba(14,130,168,.94)');c.fillStyle=gr;c.fill();
+   if(!full){wave();c.strokeStyle='rgba(255,255,255,.75)';c.lineWidth=2;c.stroke()}
+   c.restore();
+  }
+  trace(p);c.strokeStyle='rgba(20,32,51,.9)';c.lineWidth=2.5;c.stroke();
+  const m=[(p[0][0]+p[2][0])/2,(p[0][1]+p[2][1])/2],ins=q=>{const dx=m[0]-q[0],dy=m[1]-q[1],d=Math.hypot(dx,dy)||1;return[q[0]+dx/d*8,q[1]+dy/d*8]};
+  const e1=ins([lerp(p[0][0],p[1][0],.15),lerp(p[0][1],p[1][1],.15)]),e2=ins([lerp(p[0][0],p[1][0],.6),lerp(p[0][1],p[1][1],.6)]);
+  c.beginPath();c.moveTo(e1[0],e1[1]);c.lineTo(e2[0],e2[1]);c.strokeStyle='rgba(255,255,255,.4)';c.lineWidth=3;c.stroke();
+ });
+ const tr=[[0,0],[0,-3],[4,0]].map(P);
+ c.save();c.shadowColor='rgba(0,0,0,.4)';c.shadowBlur=10;c.shadowOffsetX=2;c.shadowOffsetY=5;trace(tr);
+ g=c.createLinearGradient(tr[1][0],tr[1][1],tr[2][0],tr[2][1]);g.addColorStop(0,'#ffd45c');g.addColorStop(1,'#e7a014');c.fillStyle=g;c.fill();c.restore();
+ trace(tr);c.strokeStyle='#5a3d00';c.lineWidth=2;c.stroke();
+ const ra=[[0,-.6],[.6,-.6],[.6,0]].map(P);c.beginPath();c.moveTo(ra[0][0],ra[0][1]);c.lineTo(ra[1][0],ra[1][1]);c.lineTo(ra[2][0],ra[2][1]);c.lineWidth=1.5;c.stroke();
+ [[0,[0,-3]],[1,[4,0]]].forEach(o=>{
+  const q=s.fl[o[0]];if(Math.abs(q)<.15)return;
+  const p=P(o[1]),len=Math.min(lvY(q>0?2:o[0])-p[1],4.5*u);if(len<4)return;
+  const w=clamp(2+Math.abs(q)*.45,2,8);
+  c.beginPath();c.moveTo(p[0]-w/2,p[1]);c.lineTo(p[0]+w/2,p[1]);c.lineTo(p[0]+w*.3,p[1]+len);c.lineTo(p[0]-w*.3,p[1]+len);c.closePath();
+  const gr=c.createLinearGradient(0,p[1],0,p[1]+len);gr.addColorStop(0,'rgba(150,235,245,.9)');gr.addColorStop(1,'rgba(40,160,190,.85)');c.fillStyle=gr;c.fill();
+  for(let i=0;i<5;i++){const t=(now/420+i/5)%1;dot(p[0]+Math.sin(i*5.1)*w*.6,p[1]+t*len,1.4+(i*7%3)*.5,'rgba(190,245,250,.9)')}
+  const ph=(now/500)%1,rr=w*.8+ph*14;c.beginPath();c.ellipse(p[0],p[1]+len,rr,rr*.28,0,0,TAU);c.strokeStyle='rgba(255,255,255,'+.6*(1-ph)+')';c.lineWidth=1.5;c.stroke();
+ });
+ [['a²',[-1.5,-1.5]],['b²',[2,2]],['c²',[3.5,-3.5]]].forEach(l=>{const q=P(l[1]);c.font='700 '+Math.max(16,u*.5)+'px system-ui,sans-serif';c.textAlign='center';c.textBaseline='middle';c.lineWidth=4;c.strokeStyle='rgba(255,255,255,.75)';c.strokeText(l[0],q[0],q[1]);c.fillStyle='#142033';c.fillText(l[0],q[0],q[1])});
+ const wc='rgba(255,255,255,.75)';ln(W-24,H-58,W-24,H-24,wc,2);ln(W-24,H-24,W-30,H-32,wc,2);ln(W-24,H-24,W-18,H-32,wc,2);tx('gravity',W-24,H-12,wc,11);
+ const fs=s.fl[0]+s.fl[1],st=fs>.15?'pouring from the small squares into c²':fs<-.15?'pouring from c² into the small squares':'at rest';
+ return 'a² = <span class="k3">'+s.v[0].toFixed(1)+'</span> · b² = <span class="k3">'+s.v[1].toFixed(1)+'</span> · c² = <span class="k3">'+s.v[2].toFixed(1)+'</span> · '+st;
+}
+
+/* Archimedes: squeeze the circle between two polygons */
+function archi(k){
+ const wide=W>=600,R=wide?Math.min(H*.4,W*.24):Math.min(H*.28,W*.34),cx=wide?W*.3:W/2,cy=wide?H/2:H*.36;
+ const sp=clamp((T-.06)/.85)*5,st=Math.min(4,Math.floor(sp)),e=sp>=5?1:ss(clamp((sp-st-.15)/.7)),n=6*Math.pow(2,st),ns=e>.5?2*n:n;
+ const ins=[],cir=[];
+ for(let j=0;j<2*n;j++){const a=j*Math.PI/n-Math.PI/2,r=j%2?lerp(Math.cos(Math.PI/n),1,e):1;ins.push([cx+R*r*Math.cos(a),cy+R*r*Math.sin(a)])}
+ const r0=1/Math.cos(Math.PI/n),r1=1/Math.cos(Math.PI/(2*n));
+ for(let j=0;j<n;j++){const a0=(2*j+1)*Math.PI/n-Math.PI/2;[-1,1].forEach(d=>{const a1=a0+d*Math.PI/(2*n);cir.push([lerp(cx+R*r0*Math.cos(a0),cx+R*r1*Math.cos(a1),e),lerp(cy+R*r0*Math.sin(a0),cy+R*r1*Math.sin(a1),e)])})}
+ const poly=(p,fill,al,col,w)=>{c.beginPath();p.forEach((z,i)=>i?c.lineTo(z[0],z[1]):c.moveTo(z[0],z[1]));c.closePath();c.globalAlpha=al;c.fillStyle=fill;c.fill();c.globalAlpha=1;c.strokeStyle=col;c.lineWidth=w;c.stroke()};
+ poly(cir,k.c2,.07,k.c2,2.5);poly(ins,k.c1,.16,k.c1,2.5);circ(cx,cy,R,k.ink,2);
+ if(n<=24)ins.forEach((p,i)=>dot(p[0],p[1],i%2?3*e:3,k.c1));
+ ln(cx,cy,ins[0][0],ins[0][1],k.ink,1.5,[4,4]);dot(cx,cy,3,k.ink);tx('r = 1',cx-8,cy-R/2,k.muted,12,'right');
+ const lo=ns*Math.sin(Math.PI/ns),up=ns*Math.tan(Math.PI/ns);
+ const bar=(x0,x1,y)=>{const xo=v=>x0+(v-3)/.5*(x1-x0);ln(x0,y,x1,y,k.line,7);ln(xo(lo),y,xo(up),y,k.c3,7);ln(xo(Math.PI),y-12,xo(Math.PI),y+12,k.ink,2);tx('π',xo(Math.PI),y-22,k.ink,14);tx('3.0',x0,y+22,k.muted,11);tx('3.5',x1,y+22,k.muted,11)};
+ if(wide){const px=W*.58;tx(ns+' sides',px,H*.16,k.ink,24,'left');tx('inside polygon: lower bound',px,H*.30,k.c1,13,'left');tx(lo.toFixed(5),px,H*.37,k.c1,28,'left');tx('outside polygon: upper bound',px,H*.50,k.c2,13,'left');tx(up.toFixed(5),px,H*.57,k.c2,28,'left');bar(px,W-30,H*.76);tx('π = 3.14159…',px,H*.92,k.muted,14,'left')}
+ else{tx(ns+' sides',W/2,H*.70,k.ink,16);tx(lo.toFixed(5)+' < π < '+up.toFixed(5),W/2,H*.78,k.ink,16);bar(W*.12,W*.88,H*.9)}
+ return '<span class="k1">'+ns+'·sin(π/'+ns+') = '+lo.toFixed(5)+'</span> < π < <span class="k2">'+ns+'·tan(π/'+ns+') = '+up.toFixed(5)+'</span>';
+}
+
+/* Monte Carlo: throw random darts, count how many land in the circle */
+const MN=4000;let MC=null;
+function mcInit(){
+ let a=47;const r=()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+ MC={x:[],y:[],i:[],cum:[0]};
+ for(let n=0;n<MN;n++){const x=r()*2-1,y=r()*2-1,ins=x*x+y*y<=1;MC.x.push(x);MC.y.push(y);MC.i.push(ins);MC.cum.push(MC.cum[n]+(ins?1:0))}
+}
+function mc(k){
+ if(!MC)mcInit();
+ const wide=W>=600,S=wide?Math.min(H-36,W*.46):Math.min(W-40,H*.54),x0=wide?24:(W-S)/2,y0=wide?(H-S)/2:14,h=S/2,cx=x0+h,cy=y0+h;
+ const cnt=Math.round(MN*Math.pow(clamp(T/.92),1.7)),ins=MC.cum[cnt],est=cnt?4*ins/cnt:0;
+ c.globalAlpha=.06;c.fillStyle=k.muted;c.fillRect(x0,y0,S,S);c.globalAlpha=1;
+ const d=S>260?2.6:2.2;
+ [true,false].forEach(f=>{c.fillStyle=f?k.c3:k.c2;c.globalAlpha=.85;for(let i=0;i<cnt;i++)if(MC.i[i]===f)c.fillRect(cx+MC.x[i]*h-d/2,cy+MC.y[i]*h-d/2,d,d)});c.globalAlpha=1;
+ c.strokeStyle=k.ink;c.lineWidth=2;c.strokeRect(x0,y0,S,S);circ(cx,cy,h,k.ink,2);
+ if(cnt>0&&cnt<MN){const lx=cx+MC.x[cnt-1]*h,ly=cy+MC.y[cnt-1]*h;circ(lx,ly,7,k.ink,2)}
+ const chart=(px,cw,yt,ch)=>{
+  const yo=v=>yt+ch-(clamp(v,2.6,3.7)-2.6)/1.1*ch;
+  ln(px,yt+ch,px+cw,yt+ch,k.line,1.5);ln(px,yt,px,yt+ch,k.line,1.5);
+  ln(px,yo(Math.PI),px+cw,yo(Math.PI),k.muted,1.5,[5,5]);tx('π',px+cw+10,yo(Math.PI),k.muted,13,'left');
+  if(cnt>20){const st=Math.max(1,Math.ceil(cnt/240));c.beginPath();let first=true;for(let i=20;i<=cnt;i+=st){const x=px+i/MN*cw,y=yo(4*MC.cum[i]/i);first?c.moveTo(x,y):c.lineTo(x,y);first=false}c.strokeStyle=k.c1;c.lineWidth=2;c.stroke();dot(px+cnt/MN*cw,yo(est),4,k.c1)}
+  tx('darts thrown →',px+cw,yt+ch+14,k.muted,11,'right');tx('estimate of π',px+4,yt-8,k.muted,11,'left')};
+ if(wide){const px=x0+S+40;
+  tx('darts thrown: '+cnt.toLocaleString(),px,H*.09,k.ink,15,'left');tx('inside the circle: '+ins.toLocaleString(),px,H*.16,k.c3,15,'left');
+  tx('π ≈ '+(cnt?est.toFixed(4):'…'),px,H*.30,k.ink,34,'left');
+  chart(px,W-px-34,H*.50,H*.34)}
+ else{tx('darts '+cnt.toLocaleString()+' · inside '+ins.toLocaleString(),W/2,y0+S+18,k.ink,14);tx('π ≈ '+(cnt?est.toFixed(4):'…'),W/2,y0+S+46,k.ink,26);
+  chart(30,W-76,y0+S+78,H-(y0+S+78)-28)}
+ return cnt?'darts = '+cnt.toLocaleString()+' · inside circle = <span class="k3">'+ins.toLocaleString()+'</span> · π ≈ 4 × '+ins+' ÷ '+cnt+' = <b>'+est.toFixed(4)+'</b>':'Throw some darts to begin.';
+}
+
+/* Derivative of e^x: the slope equals the height */
+function expd(k){
+ const wide=W>=600,g=wide?[[34,H*.14,W/2-52,H*.68],[W/2+22,H*.14,W/2-52,H*.68]]:[[40,26,W-64,H*.34],[40,H*.55,W-64,H*.34]],B1=g[0],B2=g[1];
+ const A=T<.25,p=ss(clamp(T/.25)),h=1.6*Math.pow(.0005/1.6,p),t=A?0:lerp(-2,2,clamp((T-.25)/.68)),y=Math.exp(t);
+ const sl=A?(Math.exp(t+h)-y)/h:(Math.exp(t+1e-5)-y)/1e-5,sd=x=>(Math.exp(x+1e-5)-Math.exp(x))/1e-5;
+ const X=(b,x)=>b[0]+(x+2)/4*b[2],Y=(b,v)=>b[1]+b[3]-v/8*b[3];
+ const frame=(b,title)=>{
+  for(let v=0;v<=8;v+=2){ln(b[0],Y(b,v),b[0]+b[2],Y(b,v),k.line,1);tx(String(v),b[0]-6,Y(b,v),k.muted,10,'right')}
+  for(let x=-2;x<=2;x++){ln(X(b,x),b[1],X(b,x),b[1]+b[3],k.line,1);tx(String(x),X(b,x),b[1]+b[3]+13,k.muted,10)}
+  ln(b[0],Y(b,0),b[0]+b[2],Y(b,0),k.muted,1.5);ln(X(b,0),b[1],X(b,0),b[1]+b[3],k.muted,1.5);
+  tx(title,b[0],b[1]-10,k.ink,14,'left')};
+ const curve=(b,to,fn,col,w,dash)=>path(Math.max(2,Math.ceil((to+2)*40)),u=>{const x=-2+u*(to+2);return[X(b,x),Y(b,fn(x))]},col,w,dash);
+ frame(B1,'f(x) = eˣ');frame(B2,'slope of f at each x');
+ curve(B1,2,Math.exp,k.c1,3.5);
+ c.save();c.beginPath();c.rect(B1[0],B1[1],B1[2],B1[3]);c.clip();
+ if(A)ln(X(B1,-2),Y(B1,y+sl*(-2-t)),X(B1,2),Y(B1,y+sl*(2-t)),k.c2,2.5);
+ else ln(X(B1,t-1.3),Y(B1,y-y*1.3),X(B1,t+1.3),Y(B1,y+y*1.3),k.c2,3.5);
+ c.restore();
+ if(!A)ln(X(B1,t),Y(B1,0),X(B1,t),Y(B1,y),k.c1,1.5,[3,4]);
+ dot(X(B1,t),Y(B1,y),6,k.c1,k.card);if(A)dot(X(B1,t+h),Y(B1,Math.exp(t+h)),5,k.c2,k.card);
+ tx(A?'shrink h: secant → tangent':'tangent slope = height',X(B1,-1.9),Y(B1,7.3),k.c2,13,'left');
+ curve(B2,2,Math.exp,k.line,2.5,[5,5]);
+ if(!A&&t>-1.98)curve(B2,t,sd,k.c2,3.5);
+ dot(X(B2,t),Y(B2,sl),6,k.c2,k.card);
+ if(T>.8){c.globalAlpha=clamp((T-.8)/.1);tx('f′(x) = eˣ · same curve!',X(B2,-1.9),Y(B2,7.3),k.c2,14,'left');c.globalAlpha=1}
+ return A?'h = '+h.toFixed(4)+' · secant slope (eʰ − 1) ÷ h = <b>'+sl.toFixed(4)+'</b> → 1':'x = '+t.toFixed(2)+' · height eˣ = <span class="k1">'+y.toFixed(3)+'</span> · slope = <span class="k2">'+sl.toFixed(3)+'</span>';
+}
+
+/* Fundamental theorem of calculus: the area so far grows at rate f(x) */
+function ftc(k){
+ const wide=W>=600,g=wide?[[34,H*.14,W/2-52,H*.68],[W/2+22,H*.14,W/2-52,H*.68]]:[[40,26,W-64,H*.34],[40,H*.55,W-64,H*.34]],B1=g[0],B2=g[1];
+ const f=u=>1.5+Math.sin(u),F=u=>1.5*u-Math.cos(u)+1,x=6*clamp((T-.08)/.8),dx=.3;
+ const X=(b,u)=>b[0]+u/6*b[2],Y=(b,v,m)=>b[1]+b[3]-v/m*b[3];
+ const frame=(b,m,st,title)=>{
+  for(let v=0;v<=m;v+=st){ln(b[0],Y(b,v,m),b[0]+b[2],Y(b,v,m),k.line,1);tx(String(v),b[0]-6,Y(b,v,m),k.muted,10,'right')}
+  for(let u=0;u<=6;u++){ln(X(b,u),b[1],X(b,u),b[1]+b[3],k.line,1);tx(String(u),X(b,u),b[1]+b[3]+13,k.muted,10)}
+  ln(b[0],Y(b,0,m),b[0]+b[2],Y(b,0,m),k.muted,1.5);ln(b[0],b[1],b[0],b[1]+b[3],k.muted,1.5);
+  tx(title,b[0],b[1]-10,k.ink,14,'left')};
+ frame(B1,3,1,'f(x) = 1.5 + sin x');frame(B2,10,2,'A(x) = area under f from 0 to x');
+ if(x>.01){c.beginPath();c.moveTo(X(B1,0),Y(B1,0,3));for(let i=0;i<=60;i++){const u=x*i/60;c.lineTo(X(B1,u),Y(B1,f(u),3))}c.lineTo(X(B1,x),Y(B1,0,3));c.closePath();c.globalAlpha=.3;c.fillStyle=k.c1;c.fill();c.globalAlpha=1}
+ path(120,t=>[X(B1,6*t),Y(B1,f(6*t),3)],k.c1,3.5);
+ const xe=Math.min(6,x+dx);
+ c.beginPath();c.moveTo(X(B1,x),Y(B1,0,3));c.lineTo(X(B1,x),Y(B1,f(x),3));c.lineTo(X(B1,xe),Y(B1,f(x),3));c.lineTo(X(B1,xe),Y(B1,0,3));c.closePath();c.globalAlpha=.55;c.fillStyle=k.c2;c.fill();c.globalAlpha=1;
+ ln(X(B1,x),Y(B1,0,3),X(B1,x),Y(B1,f(x),3),k.c2,2.5);dot(X(B1,x),Y(B1,f(x),3),6,k.c2,k.card);
+ tx('shaded area = A(x)',X(B1,.2),Y(B1,2.85,3),k.c1,13,'left');
+ path(120,t=>[X(B2,6*t),Y(B2,F(6*t),10)],k.line,2.5,[5,5]);
+ if(x>.01)path(Math.max(2,Math.ceil(x*30)),t=>[X(B2,x*t),Y(B2,F(x*t),10)],k.c3,3.5);
+ const A=F(x),sl=(F(x+1e-5)-A)/1e-5;
+ c.save();c.beginPath();c.rect(B2[0],B2[1],B2[2],B2[3]);c.clip();ln(X(B2,x-1),Y(B2,A-f(x),10),X(B2,x+1),Y(B2,A+f(x),10),k.c2,3.5);c.restore();
+ dot(X(B2,x),Y(B2,A,10),6,k.c3,k.card);
+ if(T>.9){c.globalAlpha=clamp((T-.9)/.06);tx('A′(x) = f(x)',X(B2,.2),Y(B2,9.2,10),k.c2,14,'left');c.globalAlpha=1}
+ return x>=5.999?'area from 0 to 6 = A(6) − A(0) = <b>'+F(6).toFixed(3)+'</b> · A′(x) = f(x) at every x':'x = '+x.toFixed(2)+' · f(x) = <span class="k2">'+f(x).toFixed(3)+'</span> · A(x) = <span class="k3">'+A.toFixed(3)+'</span> · slope of A = <span class="k2">'+sl.toFixed(3)+'</span>';
+}
+
+/* Riemann sums: rectangles squeeze the area under a curve */
+function riem(k){
+ const wide=W>=600,B=wide?[34,H*.12,W*.52,H*.72]:[40,22,W-64,H*.5];
+ const f=u=>u*u/4+.5,sp=clamp((T-.06)/.88)*6,st=Math.min(5,Math.floor(sp)),e=sp>=6?1:ss(clamp((sp-st-.15)/.7)),n=2*Math.pow(2,st),ns=e>.5?2*n:n;
+ const m=e<.001?n:2*n,ww=4/m,pw=ww/4*B[2],sk=pw>4;
+ const hl=i=>m===n?f(i*ww):lerp(f(2*Math.floor(i/2)*ww),f(i*ww),e),hr=i=>m===n?f((i+1)*ww):lerp(f((2*Math.floor(i/2)+2)*ww),f((i+1)*ww),e);
+ const X=u=>B[0]+u/4*B[2],Y=v=>B[1]+B[3]-v/5*B[3];
+ for(let v=0;v<=5;v++){ln(B[0],Y(v),B[0]+B[2],Y(v),k.line,1);tx(String(v),B[0]-6,Y(v),k.muted,10,'right')}
+ for(let u=0;u<=4;u++){ln(X(u),B[1],X(u),B[1]+B[3],k.line,1);tx(String(u),X(u),B[1]+B[3]+13,k.muted,10)}
+ ln(B[0],Y(0),B[0]+B[2],Y(0),k.muted,1.5);ln(B[0],B[1],B[0],B[1]+B[3],k.muted,1.5);
+ const rect=(i,h,col,al)=>{const x=X(i*ww),y=Y(h);c.globalAlpha=al;c.fillStyle=col;c.fillRect(x,y,pw,Y(0)-y);c.globalAlpha=1;if(sk){c.strokeStyle=col;c.lineWidth=1.5;c.strokeRect(x,y,pw,Y(0)-y)}};
+ for(let i=0;i<m;i++)rect(i,hr(i),k.c2,.1);
+ for(let i=0;i<m;i++)rect(i,hl(i),k.c1,.38);
+ path(120,t=>[X(4*t),Y(f(4*t))],k.ink,3);
+ tx('f(x) = x²/4 + 0.5',X(.15),Y(4.6),k.ink,13,'left');
+ let lo=0,up=0;for(let i=0;i<ns;i++){lo+=f(i*4/ns)*4/ns;up+=f((i+1)*4/ns)*4/ns}
+ const bar=(x0,x1,y)=>{const xo=v=>x0+(v-3.5)/9*(x1-x0);ln(x0,y,x1,y,k.line,7);ln(xo(lo),y,xo(up),y,k.c3,7);ln(xo(22/3),y-12,xo(22/3),y+12,k.ink,2);tx('exact',xo(22/3),y-22,k.ink,12);tx('3.5',x0,y+22,k.muted,11);tx('12.5',x1,y+22,k.muted,11)};
+ if(wide){const px=B[0]+B[2]+40;tx(ns+' rectangles',px,H*.12,k.ink,22,'left');tx('left sum (under the curve)',px,H*.26,k.c1,13,'left');tx(lo.toFixed(4),px,H*.33,k.c1,28,'left');tx('right sum (over the curve)',px,H*.46,k.c2,13,'left');tx(up.toFixed(4),px,H*.53,k.c2,28,'left');tx('exact area = 22/3 = 7.3333',px,H*.65,k.muted,14,'left');bar(px,W-30,H*.84)}
+ else{tx(ns+' rectangles',W/2,H*.68,k.ink,15);tx(lo.toFixed(3)+' < area < '+up.toFixed(3),W/2,H*.76,k.ink,15);bar(W*.12,W*.88,H*.9)}
+ return 'n = '+ns+' · left sum = <span class="k1">'+lo.toFixed(4)+'</span> < area < right sum = <span class="k2">'+up.toFixed(4)+'</span> · exact 22/3 = 7.3333';
+}
+
+/* f, f' and f'' compared on one shared x-axis */
+function deriv3(k){
+ const f=u=>Math.pow(u,5)/5-.75*u*u*u+.25*u*u+.75*u,d1=u=>(u+1.5)*(u+.5)*(u-1)*(u-1),d2=u=>4*u*u*u-4.5*u+.5,xl=-1.7,xr=1.5,x=lerp(xl,xr,clamp((T-.06)/.88));
+ const P=[{t:'f(x)  \u00b7  the original curve',lo:-.4,hi:.8,fn:f,sg:d1,tk:[-.4,0,.4,.8]},
+  {t:'f\u2032(x)  \u00b7  the slope of f',lo:-1.5,hi:2.5,fn:d1,sg:d2,tk:[-1,0,1,2]},
+  {t:'f\u2033(x)  \u00b7  how fast the slope changes',lo:-12,hi:8,fn:d2,sg:null,tk:[-10,0,5]}];
+ const x0=44,w=W-64,ph=(H-120)/3,tops=[26,26+ph+30,26+2*(ph+30)],gx=[-1.5,-1,-.5,0,.5,1,1.5];
+ const X=u=>x0+(u-xl)/(xr-xl)*w,Y=(i,v)=>tops[i]+ph-(v-P[i].lo)/(P[i].hi-P[i].lo)*ph;
+ P.forEach((p,i)=>{
+  gx.forEach(u=>ln(X(u),tops[i],X(u),tops[i]+ph,k.line,1));
+  p.tk.forEach(v=>{ln(x0,Y(i,v),x0+w,Y(i,v),v===0?k.muted:k.line,v===0?1.5:1);tx(String(v),x0-6,Y(i,v),k.muted,10,'right')});
+  ln(x0,tops[i],x0,tops[i]+ph,k.muted,1.5);tx(p.t,x0,tops[i]-10,k.ink,13,'left');
+  for(let j=0;j<120;j++){const a=xl+(xr-xl)*j/120,b=xl+(xr-xl)*(j+1)/120,m=(a+b)/2;ln(X(a),Y(i,p.fn(a)),X(b),Y(i,p.fn(b)),p.sg?(p.sg(m)>0?k.c3:k.c2):k.c4,3.5)}
+ });
+ gx.forEach(u=>tx(String(u),X(u),tops[2]+ph+13,k.muted,10));
+ [[-1.5,'max',-13],[-.5,'min',14],[1,'flat spot',14]].forEach(m=>{const px=X(m[0]),py=Y(0,f(m[0]));circ(px,py,5,k.ink,2);tx(m[1],px,py+m[2],k.muted,11);circ(px,Y(1,0),5,k.ink,2)});
+ [-1.11237,.11237].forEach(u=>{circ(X(u),Y(0,f(u)),5,k.ink,2);circ(X(u),Y(2,0),5,k.ink,2)});
+ circ(X(1),Y(2,0),5,k.ink,2);
+ ln(X(x),tops[0],X(x),tops[2]+ph,k.muted,1.5,[4,4]);
+ [[0,d1,k.c1],[1,d2,k.c4]].forEach(o=>{const i=o[0],v=P[i].fn(x),s=o[1](x);c.save();c.beginPath();c.rect(x0,tops[i],w,ph);c.clip();ln(X(x-.5),Y(i,v-.5*s),X(x+.5),Y(i,v+.5*s),o[2],3);c.restore()});
+ P.forEach((p,i)=>dot(X(x),Y(i,p.fn(x)),7,k.ink,k.card));
+ const a=d1(x),b=d2(x),s1=Math.abs(a)<.06?'flat (a peak, valley or flat spot)':a>0?'rising':'falling',s2=Math.abs(b)<.15?'inflection (the bend flips)':b>0?'curving up':'curving down';
+ return 'x = '+x.toFixed(2)+' \u00b7 f = '+f(x).toFixed(2)+' \u00b7 f\u2032 = <span class="k1">'+a.toFixed(2)+'</span> \u2192 f is '+s1+' \u00b7 f\u2033 = <span style="color:var(--c4)">'+b.toFixed(2)+'</span> \u2192 '+s2;
+}
+
+/* The derivative of sine is cosine */
+function dsin(k){
+ const P2=Math.PI*2,x=P2*clamp((T-.06)/.84),x0=44,w=W-64,ph=(H-90)/2,tops=[26,26+ph+34];
+ const X=u=>x0+u/P2*w,Y=(i,v)=>tops[i]+ph-(v+1.5)/3*ph,sl=(Math.sin(x+1e-5)-Math.sin(x))/1e-5;
+ const frame=(i,title)=>{
+  [-1,0,1].forEach(v=>{ln(x0,Y(i,v),x0+w,Y(i,v),v===0?k.muted:k.line,v===0?1.5:1);tx(String(v),x0-6,Y(i,v),k.muted,10,'right')});
+  for(let m=0;m<=4;m++){const u=m*Math.PI/2;ln(X(u),tops[i],X(u),tops[i]+ph,k.line,1)}
+  ln(x0,tops[i],x0,tops[i]+ph,k.muted,1.5);tx(title,x0,tops[i]-10,k.ink,14,'left')};
+ frame(0,'f(x) = sin x');frame(1,'slope of sin x at each x');
+ ['0','π/2','π','3π/2','2π'].forEach((l,m)=>tx(l,X(m*Math.PI/2),tops[1]+ph+14,k.muted,11));
+ for(let j=0;j<120;j++){const a=P2*j/120,b=P2*(j+1)/120;ln(X(a),Y(0,Math.sin(a)),X(b),Y(0,Math.sin(b)),Math.cos((a+b)/2)>0?k.c3:k.c2,3.5)}
+ path(120,t=>[X(P2*t),Y(1,Math.cos(P2*t))],k.line,2.5,[5,5]);
+ if(x>.02)path(Math.max(2,Math.ceil(x/P2*160)),t=>{const u=x*t;return[X(u),Y(1,(Math.sin(u+1e-5)-Math.sin(u))/1e-5)]},k.c1,3.5);
+ [[Math.PI/2,1,'slope 0',-14],[3*Math.PI/2,-1,'slope 0',15]].forEach(m=>{circ(X(m[0]),Y(0,m[1]),5,k.ink,2);tx(m[2],X(m[0]),Y(0,m[1])+m[3],k.muted,11)});
+ [0,Math.PI,P2].forEach(u=>circ(X(u),Y(0,0),5,k.ink,2));
+ tx('slope +1',X(0)+8,Y(0,0)+14,k.muted,11,'left');tx('slope −1',X(Math.PI)+8,Y(0,0)-14,k.muted,11,'left');tx('slope +1',X(P2)-8,Y(0,0)-14,k.muted,11,'right');
+ [Math.PI/2,3*Math.PI/2].forEach(u=>circ(X(u),Y(1,0),5,k.ink,2));
+ [[0,1],[Math.PI,-1],[P2,1]].forEach(m=>circ(X(m[0]),Y(1,m[1]),5,k.ink,2));
+ ln(X(x),tops[0],X(x),tops[1]+ph,k.muted,1.5,[4,4]);
+ c.save();c.beginPath();c.rect(x0,tops[0],w,ph);c.clip();ln(X(x-.7),Y(0,Math.sin(x)-.7*Math.cos(x)),X(x+.7),Y(0,Math.sin(x)+.7*Math.cos(x)),k.c1,3.5);c.restore();
+ dot(X(x),Y(0,Math.sin(x)),7,k.ink,k.card);dot(X(x),Y(1,sl),7,k.ink,k.card);
+ if(T>.9){c.globalAlpha=clamp((T-.9)/.06);tx('slope of sin x = cos x',X(Math.PI),Y(1,1.25),k.c1,14);c.globalAlpha=1}
+ return 'x = '+(x/Math.PI).toFixed(2)+'π · height sin x = '+f3(Math.sin(x))+' · slope = <span class="k1">'+f3(sl)+'</span> · cos x = <b>'+f3(Math.cos(x))+'</b>';
+}
+
+/* Slope field for dy/dx = x - y */
+function slopef(k){
+ const B=[44,26,W-64,H-70],sx=B[2]/6,sy=B[3]/6,X=u=>B[0]+(u+3)*sx,Y=v=>B[1]+B[3]-(v+3)*sy;
+ const f=(u,v)=>u-v,p1=clamp(T/.18),ys0=[2.5,.5,-1,-2.5],L=Math.min(sx,sy)*.17;
+ for(let u=-3;u<=3;u++){tx(String(u),X(u),B[1]+B[3]+13,k.muted,10);}
+ for(let v=-3;v<=3;v++)tx(String(v),B[0]-6,Y(v),k.muted,10,'right');
+ let tip=null,ai=Math.min(3,Math.max(0,Math.floor((T-.2)/.175)));
+ c.save();c.beginPath();c.rect(B[0],B[1],B[2],B[3]);c.clip();
+ ln(B[0],Y(0),B[0]+B[2],Y(0),k.line,1.5);ln(X(0),B[1],X(0),B[1]+B[3],k.line,1.5);
+ for(let i=0;i<=12;i++){const u=-3+i*.5,a=clamp(p1*13-i);if(a<=0)continue;
+  for(let j=0;j<=12;j++){const v=-3+j*.5,m=f(u,v),dy=-m*sy,n=Math.hypot(sx,dy);c.globalAlpha=a*.85;ln(X(u)-sx/n*L,Y(v)-dy/n*L,X(u)+sx/n*L,Y(v)+dy/n*L,Math.abs(m)<.05?k.muted:m>0?k.c3:k.c2,2.2)}}
+ c.globalAlpha=1;
+ if(p1>.95)ln(X(-3),Y(-3),X(3),Y(3),k.muted,1.5,[5,5]);
+ ys0.forEach((y0,i)=>{const r=clamp((T-.2-.175*i)/.175);if(r<=0)return;
+  const C=(y0+4)*Math.exp(-3),sol=u=>u-1+C*Math.exp(-u),xe=-3+6*r;
+  path(Math.max(2,Math.ceil(r*120)),t=>{const u=-3+(xe+3)*t;return[X(u),Y(sol(u))]},k.c1,3.5);dot(X(-3),Y(y0),5,k.c1,k.card);
+  if(r<1)tip={x:xe,y:sol(xe),y0:y0}});
+ if(T>.9){c.globalAlpha=clamp((T-.9)/.06);ln(X(-3),Y(-4),X(3),Y(2),k.c4,2.5,[6,5]);c.globalAlpha=1}
+ if(tip){const m=f(tip.x,tip.y),dy=-m*sy,n=Math.hypot(sx,dy);ln(X(tip.x)-sx/n*16,Y(tip.y)-dy/n*16,X(tip.x)+sx/n*16,Y(tip.y)+dy/n*16,k.ink,3);dot(X(tip.x),Y(tip.y),6,k.ink,k.card)}
+ c.restore();
+ c.strokeStyle=k.muted;c.lineWidth=1.5;c.strokeRect(B[0],B[1],B[2],B[3]);
+ tx('slope field for dy/dx = x − y',B[0],B[1]-10,k.ink,14,'left');
+ if(T>.9){c.globalAlpha=clamp((T-.9)/.06);c.font='700 13px system-ui,sans-serif';c.textAlign='left';c.textBaseline='middle';c.lineWidth=4;c.strokeStyle=k.card;c.strokeText('y = x − 1',X(1.7),Y(.7)+18);c.fillStyle=k.c4;c.fillText('y = x − 1',X(1.7),Y(.7)+18);c.globalAlpha=1}
+ if(T<.2)return 'Each little line shows the slope dy/dx = x − y at that point: <span class="k3">rising</span> where x &gt; y, <span class="k2">falling</span> where x &lt; y.';
+ if(tip){const m=f(tip.x,tip.y);return 'start y(−3) = '+tip.y0+' · at ('+tip.x.toFixed(2)+', '+tip.y.toFixed(2)+') the slope is x − y = <b>'+f3(m)+'</b>'}
+ return T>=.9?'Every solution curve is pulled toward the straight line y = x − 1.':'Pick the next starting point and follow the lines.';
+}
+
+/* Related rates: the sliding ladder */
+function ladder(k){
+ const L=10,v=2,wide=W>=600,p=clamp((T-.05)/.85),x=lerp(2,9.9,p),y=Math.sqrt(L*L-x*x),dy=-x/y*v,y0=Math.sqrt(L*L-4),tt=(x-2)/v;
+ const SB=wide?[20,24,W*.5-20,H-64]:[16,22,W-32,H*.5-10],s=Math.min(SB[2]/13.4,SB[3]/11),wx=SB[0]+1.7*s,gy=SB[1]+SB[3]-18;
+ c.globalAlpha=.22;c.fillStyle=k.muted;c.fillRect(wx-1.6*s,gy-10.8*s,1.6*s,10.8*s);c.globalAlpha=.14;c.fillRect(wx-1.6*s,gy,SB[2]-.1*s,18);c.globalAlpha=1;
+ for(let r=1;r<=10;r++)ln(wx-1.6*s,gy-r*s,wx,gy-r*s,k.line,1);
+ ln(wx,gy-10.8*s,wx,gy,k.muted,2.5);ln(wx-1.6*s,gy,SB[0]+SB[2],gy,k.muted,2.5);
+ const ty0=gy-y*s,bx=wx+x*s;
+ ln(wx,ty0,wx,gy-y0*s,k.c2,5);ln(wx+2*s,gy,bx,gy,k.c1,5);
+ const ux=(bx-wx)/(L*s),uy=(gy-ty0)/(L*s),nx=-uy*.2*s,ny=ux*.2*s;
+ ln(wx+nx,ty0+ny,bx+nx,gy+ny,'#e7a014',3.5);ln(wx-nx,ty0-ny,bx-nx,gy-ny,'#e7a014',3.5);
+ for(let i=.5;i<10;i++){const px=wx+ux*i*s,py=ty0+uy*i*s;ln(px+nx,py+ny,px-nx,py-ny,'#a76a00',2.2)}
+ dot(wx,ty0,4.5,k.ink);dot(bx,gy,4.5,k.ink);
+ tx('x = '+x.toFixed(1)+' ft',wx+x*s/2,gy+10,k.c1,11);
+ c.save();c.translate(wx-1.15*s,gy-y*s/2);c.rotate(-Math.PI/2);tx('y = '+y.toFixed(1)+' ft',0,0,k.c2,11);c.restore();
+ const arrow=(x1,y1,x2,y2,col)=>{ln(x1,y1,x2,y2,col,3.5);const a=Math.atan2(y2-y1,x2-x1);ln(x2,y2,x2-9*Math.cos(a-.45),y2-9*Math.sin(a-.45),col,3.5);ln(x2,y2,x2-9*Math.cos(a+.45),y2-9*Math.sin(a+.45),col,3.5)};
+ arrow(bx+10,gy-16,bx+38,gy-16,k.c1);tx('2 ft/s',bx+24,gy-28,k.c1,11);
+ const al=Math.min(8+Math.abs(dy)*14,Math.max(10,gy-ty0-26));arrow(wx-.45*s,ty0+4,wx-.45*s,ty0+4+al,k.c2);tx(dy.toFixed(1),wx-.45*s,ty0+4+al+12,k.c2,11);
+ const gx0=SB[0]+SB[2]+36,G=wide?[gx0,H*.36,W-gx0-30,H*.44]:[44,H*.64,W-74,H*.24];
+ const GX=u=>G[0]+u/4*G[2],GY=u=>G[1]+G[3]-u/15*G[3],spd=q=>{const xx=2+v*q;return v*xx/Math.sqrt(L*L-xx*xx)};
+ if(wide){tx('x² + y² = 10²',gx0,H*.1,k.ink,22,'left');tx('dy/dt = −(x ÷ y) × dx/dt',gx0,H*.19,k.c2,16,'left');tx('the bottom slides at dx/dt = 2 ft/s',gx0,H*.26,k.c1,13,'left')}
+ [0,5,10,15].forEach(u=>{ln(G[0],GY(u),G[0]+G[2],GY(u),k.line,1);tx(String(u),G[0]-6,GY(u),k.muted,10,'right')});
+ for(let q=0;q<=4;q++){ln(GX(q),G[1],GX(q),G[1]+G[3],k.line,1);tx(String(q),GX(q),G[1]+G[3]+13,k.muted,10)}
+ ln(G[0],G[1]+G[3],G[0]+G[2],G[1]+G[3],k.muted,1.5);ln(G[0],G[1],G[0],G[1]+G[3],k.muted,1.5);
+ tx('speed of the top, |dy/dt| in ft/s, over time in s',G[0],G[1]-10,k.ink,12,'left');
+ ln(GX(0),GY(2),GX(4),GY(2),k.c1,2,[5,5]);tx('bottom: 2 ft/s',GX(0)+4,GY(2)-9,k.c1,11,'left');
+ const ts=(Math.SQRT1_2*L-2)/v;circ(GX(ts),GY(2),5,k.ink,2);tx('x = y',GX(ts)-9,GY(2)-16,k.muted,11,'right');
+ path(100,u=>[GX(3.95*u),GY(spd(3.95*u))],k.line,2.5,[5,5]);
+ if(p>.01)path(Math.max(2,Math.ceil(p*100)),u=>[GX(tt*u),GY(spd(tt*u))],k.c2,3.5);
+ dot(GX(tt),GY(Math.abs(dy)),6,k.c2,k.card);
+ return 'x = '+x.toFixed(2)+' ft · y = '+y.toFixed(2)+' ft · bottom slides at <span class="k1">+2.00 ft/s</span> · top falls at dy/dt = −(x ÷ y) × 2 = <span class="k2">'+dy.toFixed(2)+' ft/s</span>';
+}
+
+/* The tangent line problem: secant lines approach the tangent */
+function tangent(k){
+ const wide=W>=600,f=u=>u*u/2,xp=1.5,fp=f(xp),hs=[2,1,.5,.1,.01,.001];
+ const B=wide?[44,30,W*.56-44,H-80]:[40,22,W-60,H*.46];
+ const GX=u=>B[0]+(u+1)/5*B[2],GY=v=>B[1]+B[3]-(v+.5)/9*B[3];
+ let h=0;if(T<.55)h=2*Math.pow(.001/2,ss(clamp(T/.5)));else if(T<.8)h=-2*Math.pow(.001/2,ss(clamp((T-.55)/.22)));
+ const phase=T<.55?0:T<.8?1:2,m=h?(f(xp+h)-fp)/h:xp;
+ for(let v=0;v<=8;v+=2){ln(B[0],GY(v),B[0]+B[2],GY(v),k.line,1);tx(String(v),B[0]-6,GY(v),k.muted,10,'right')}
+ for(let u=-1;u<=4;u++){ln(GX(u),B[1],GX(u),B[1]+B[3],k.line,1);tx(String(u),GX(u),B[1]+B[3]+13,k.muted,10)}
+ ln(B[0],GY(0),B[0]+B[2],GY(0),k.muted,1.5);ln(GX(0),B[1],GX(0),B[1]+B[3],k.muted,1.5);
+ c.save();c.beginPath();c.rect(B[0],B[1],B[2],B[3]);c.clip();
+ path(120,t=>{const u=-1+5*t;return[GX(u),GY(f(u))]},k.c1,3.5);
+ const line=(sl,col,w,dash)=>ln(GX(-1),GY(fp+sl*(-1-xp)),GX(4),GY(fp+sl*(4-xp)),col,w,dash);
+ c.globalAlpha=phase===2?1:.45;line(xp,k.c3,phase===2?3.5:2,phase===2?null:[6,5]);c.globalAlpha=1;
+ if(phase<2){line(m,k.c2,2.5);if(Math.abs(h)>.12){ln(GX(xp),GY(fp),GX(xp+h),GY(fp),k.muted,1.5,[4,4]);ln(GX(xp+h),GY(fp),GX(xp+h),GY(f(xp+h)),k.muted,1.5,[4,4])}}
+ c.restore();
+ if(phase<2&&Math.abs(h)>.12){tx('h',GX(xp+h/2),GY(fp)+14,k.muted,12);tx('Δy',GX(xp+h)+(h>0?8:-8),(GY(fp)+GY(f(xp+h)))/2,k.muted,12,h>0?'left':'right')}
+ dot(GX(xp),GY(fp),6,k.ink,k.card);tx('P',GX(xp)-10,GY(fp)-14,k.ink,13);
+ if(phase<2){dot(GX(xp+h),GY(f(xp+h)),6,k.c2,k.card);tx('Q',GX(xp+h)-10,GY(f(xp+h))-12,k.c2,13)}
+ else{c.globalAlpha=clamp((T-.8)/.06);tx('tangent slope = 1.5',GX(-.8),GY(7.3),k.c3,14,'left');c.globalAlpha=1}
+ tx('f(x) = x²/2',B[0],B[1]-10,k.ink,14,'left');
+ const colX=wide?[W*.56+10,W*.56+10+(W*.44-30)/2]:[W*.05,W*.52],ty=wide?H*.22:H*.62,dy=wide?24:16,fs=wide?13:12;
+ ['Q to the right (h > 0)','Q to the left (h < 0)'].forEach((t,ci)=>tx(t,colX[ci],ty-(wide?20:16),k.ink,fs,'left'));
+ [1,-1].forEach((sg,ci)=>{
+  let last=-1;hs.forEach((hv,i)=>{const reached=Math.abs(h)<=hv*1.0001,shown=ci===0?(phase>0||reached):(phase===2||(phase===1&&reached));if(shown)last=i});
+  hs.forEach((hv,i)=>{if(i>last)return;const sl=xp+sg*hv/2;tx((sg<0?'h = −':'h = ')+hv+'   '+sl.toFixed(4),colX[ci],ty+i*dy,phase===2?k.ink:(i===last&&ci===phase?k.c2:k.muted),fs,'left')})});
+ if(phase===2)tx('both sides approach 1.5',colX[0],ty+6*dy+6,k.c3,wide?14:12,'left');
+ return phase<2?'h = '+h.toFixed(3)+' · secant slope = (f(1.5 + h) − f(1.5)) ÷ h = <b>'+m.toFixed(4)+'</b> = 1.5 + h/2':'As h → 0 from either side, the secant slope → <b>1.5</b> = f′(1.5), the slope of the tangent line.';
+}
+
+/* Mean value theorem: some tangent is parallel to the secant */
+let MVX=null;
+function mvtX(p){
+ if(!MVX){const n=400,c1=(3-Math.sqrt(3))/2,c2=(3+Math.sqrt(3))/2,cum=[0];for(let i=1;i<=n;i++){const u=3*(i-.5)/n;cum.push(cum[i-1]+1+6*(Math.exp(-(u-c1)*(u-c1)/.015)+Math.exp(-(u-c2)*(u-c2)/.015)))}MVX=cum.map(v=>v/cum[n])}
+ const n=MVX.length-1;let lo=0,hi=n;while(hi-lo>1){const q=(lo+hi)>>1;if(MVX[q]<p)lo=q;else hi=q}
+ return 3*(lo+(p-MVX[lo])/((MVX[hi]-MVX[lo])||1))/n;
+}
+function mvt(k){
+ const f=u=>u*u*u-4.5*u*u+6*u+1,d=u=>3*u*u-9*u+6,a=0,b=3,m=(f(b)-f(a))/(b-a),cs=[(3-Math.sqrt(3))/2,(3+Math.sqrt(3))/2];
+ const p=clamp((T-.12)/.78),x=T<.12?a:mvtX(p),fp=d(x),x0=44,w=W-64,ph=(H-90)/2,tops=[26,26+ph+34],xl=-.3,xr=3.3,lo=[0,-2],hi=[6.5,7];
+ const X=u=>x0+(u-xl)/(xr-xl)*w,Y=(i,v)=>tops[i]+ph-(v-lo[i])/(hi[i]-lo[i])*ph;
+ [[0,2,4,6],[-2,0,2,4,6]].forEach((tk,i)=>{
+  tk.forEach(v=>{ln(x0,Y(i,v),x0+w,Y(i,v),v===0?k.muted:k.line,v===0?1.5:1);tx(String(v),x0-6,Y(i,v),k.muted,10,'right')});
+  for(let u=0;u<=3;u++)ln(X(u),tops[i],X(u),tops[i]+ph,k.line,1);
+  ln(x0,tops[i],x0,tops[i]+ph,k.muted,1.5)});
+ for(let u=0;u<=3;u++)tx(String(u),X(u),tops[1]+ph+13,k.muted,10);
+ tx('f(x), its secant (violet) and tangent',x0,tops[0]-10,k.ink,13,'left');
+ tx('tangent slope f′(x) vs average slope m',x0,tops[1]-10,k.ink,13,'left');
+ const A=[X(a),Y(0,f(a))],B=[X(b),Y(0,f(b))],g=T<.12?ss(clamp(T/.1)):1;
+ path(120,t=>[X(3*t),Y(0,f(3*t))],k.ink,3.5);
+ ln(A[0],A[1],lerp(A[0],B[0],g),lerp(A[1],B[1],g),k.c4,3);
+ dot(A[0],A[1],6,k.c4,k.card);dot(B[0],B[1],6,k.c4,k.card);tx('a',A[0],A[1]+16,k.c4,13);tx('b',B[0],B[1]+16,k.c4,13);
+ path(120,t=>[X(3*t),Y(1,d(3*t))],k.line,2.5,[5,5]);
+ ln(x0,Y(1,m),x0+w,Y(1,m),k.c4,2,[6,5]);tx('m = '+m.toFixed(1),x0+w-4,Y(1,m)-10,k.c4,12,'right');
+ const par=Math.abs(fp-m)<.12;
+ if(T>=.12){
+  if(x>.02)path(Math.max(2,Math.ceil(x/3*120)),t=>[X(x*t),Y(1,d(x*t))],k.ink,3.5);
+  cs.forEach((cc,i)=>{if(x>=cc-.03){const fc=f(cc);ln(X(cc-.6),Y(0,fc-.6*m),X(cc+.6),Y(0,fc+.6*m),k.c3,2.5);circ(X(cc),Y(0,fc),8,k.c3,2.5);tx('c'+(i?'₂':'₁'),X(cc),Y(0,fc)-18,k.c3,13);circ(X(cc),Y(1,m),8,k.c3,2.5)}});
+  ln(X(x),tops[0],X(x),tops[1]+ph,k.muted,1.5,[4,4]);
+  ln(X(x-.7),Y(0,f(x)-.7*fp),X(x+.7),Y(0,f(x)+.7*fp),par?k.c3:k.c2,3.5);
+  dot(X(x),Y(0,f(x)),7,k.ink,k.card);dot(X(x),Y(1,fp),7,k.ink,k.card)}
+ if(T<.12)return 'Average slope m = (f(b) − f(a)) ÷ (b − a) = (5.5 − 1) ÷ 3 = <b>1.5</b>, the slope of the secant line from a to b.';
+ if(T>.9)return 'The tangent is parallel to the secant at two points: c₁ ≈ 0.634 and c₂ ≈ 2.366, where f′(c) = m = 1.5.';
+ return 'x = '+x.toFixed(2)+' · tangent slope f′(x) = <span class="k2">'+fp.toFixed(2)+'</span> · average slope m = <span style="color:var(--c4)">1.50</span> · '+(par?'<b>parallel: f′(c) = m</b>':'not parallel yet');
+}
+
+/* Intermediate value theorem: a continuous curve can't skip a value */
+const IVS=(()=>{const f=u=>u*u*u-3*u;let a=-2,b=2.2;const o=[];for(let i=0;i<6;i++){const m=(a+b)/2,fm=f(m);o.push({a:a,b:b,m:m,fm:fm});if(fm<1)a=m;else b=m}o.push({a:a,b:b});return o})();
+function ivt(k){
+ const f=u=>u*u*u-3*u,N=1,wide=W>=600,xl=-2.5,xr=2.6,yl=-3,yh=5,roots=[-1.5321,-.3473,1.8794];
+ const B=wide?[44,30,W*.56-44,H-80]:[40,22,W-60,H*.42];
+ const GX=u=>B[0]+(u-xl)/(xr-xl)*B[2],GY=v=>B[1]+B[3]-(v-yl)/(yh-yl)*B[3],fmt=v=>v.toFixed(3).replace('-','−');
+ const tr=clamp((T-.1)/.4),xt=lerp(-2,2.2,tr),trac=T>=.1&&T<.5,full=T>=.5,sp=full?clamp((T-.5)/.4)*6:0,st=Math.min(5,Math.floor(sp)),q=sp>=6?1:sp-st,e=sp>=6?1:ss(clamp((q-.4)/.4));
+ c.globalAlpha=.08;c.fillStyle=k.c3;c.fillRect(B[0],B[1],B[2],GY(N)-B[1]);c.fillStyle=k.c2;c.fillRect(B[0],GY(N),B[2],B[1]+B[3]-GY(N));c.globalAlpha=1;
+ [-2,0,2,4].forEach(v=>{ln(B[0],GY(v),B[0]+B[2],GY(v),v===0?k.muted:k.line,v===0?1.5:1);tx(String(v),B[0]-6,GY(v),k.muted,10,'right')});
+ for(let u=-2;u<=2;u++){ln(GX(u),B[1],GX(u),B[1]+B[3],k.line,1);tx(String(u),GX(u),B[1]+B[3]+13,k.muted,10)}
+ ln(B[0],B[1],B[0],B[1]+B[3],k.muted,1.5);ln(GX(0),B[1],GX(0),B[1]+B[3],k.muted,1.5);
+ tx('f(x) = x³ − 3x on [a, b] = [−2, 2.2]',B[0],B[1]-10,k.ink,13,'left');
+ let a_=-2,b_=2.2;
+ if(full){a_=lerp(IVS[st].a,IVS[st+1].a,e);b_=lerp(IVS[st].b,IVS[st+1].b,e);c.globalAlpha=.14;c.fillStyle=k.c1;c.fillRect(GX(a_),B[1],GX(b_)-GX(a_),B[3]);c.globalAlpha=1;ln(GX(a_),B[1],GX(a_),B[1]+B[3],k.c1,2);ln(GX(b_),B[1],GX(b_),B[1]+B[3],k.c1,2)}
+ path(120,t=>{const u=-2+4.2*t;return[GX(u),GY(f(u))]},full?k.c1:k.line,full?3.5:2.5);
+ if(trac&&tr>.01)path(Math.max(2,Math.ceil(tr*120)),t=>{const u=-2+(xt+2)*t;return[GX(u),GY(f(u))]},k.c1,3.5);
+ ln(B[0],GY(N),B[0]+B[2],GY(N),k.c4,2,[6,5]);tx('N = 1',B[0]+B[2]-4,GY(N)-10,k.c4,13,'right');
+ const npass=full?3:trac?roots.filter(r=>xt>=r).length:0;
+ c.globalAlpha=full?.5:1;roots.slice(0,npass).forEach(r=>circ(GX(r),GY(N),7,k.c3,2.5));c.globalAlpha=1;
+ dot(GX(-2),GY(f(-2)),6,k.ink,k.card);dot(GX(2.2),GY(f(2.2)),6,k.ink,k.card);tx('a',GX(-2),GY(f(-2))+16,k.ink,13);tx('b',GX(2.2),GY(f(2.2))-14,k.ink,13);
+ if(trac)dot(GX(xt),GY(f(xt)),7,f(xt)<N?k.c2:k.c3,k.card);
+ if(full){dot(GX(a_),GY(f(a_)),6,k.c2,k.card);dot(GX(b_),GY(f(b_)),6,k.c3,k.card);
+  if(sp<6&&q<.8){const s=IVS[st];ln(GX(s.m),B[1],GX(s.m),B[1]+B[3],k.c2,2,[4,4]);dot(GX(s.m),GY(s.fm),7,k.ink,k.card);tx('mid',GX(s.m),GY(s.fm)+(s.fm<N?16:-14),k.ink,12)}}
+ if(T>=.9){c.globalAlpha=clamp((T-.9)/.05);circ(GX(roots[2]),GY(N),10,k.c3,3);tx('c',GX(roots[2]),GY(N)-20,k.c3,14);c.globalAlpha=1}
+ const colX=wide?W*.56+10:W*.06,ty=wide?H*.22:H*.62,dy=wide?24:15,fs=wide?13:12;
+ tx('bisection: keep the half that straddles N',colX,ty-(wide?22:16),k.ink,fs,'left');
+ if(full)for(let i=0;i<6;i++){if(sp<i+.3)break;const s=IVS[i];tx((i+1)+'   ['+fmt(s.a)+', '+fmt(s.b)+']   f(mid) '+(s.fm<N?'<':'>')+' N',colX,ty+i*dy,sp>=6?k.ink:(i===st?k.c2:k.muted),fs,'left')}
+ if(T>=.9)tx('c ≈ 1.879, where f(c) = N',colX,ty+6*dy+8,k.c3,wide?14:12,'left');
+ if(T<.1)return 'f(a) = f(−2) = −2 is below N = 1, and f(b) = f(2.2) = 4.05 is above it. Can a continuous curve get across without hitting N?';
+ if(trac)return 'x = '+fmt(xt)+' · f(x) = '+fmt(f(xt))+' ('+(f(xt)<N?'below':'above')+' N) · crossings so far: <b>'+npass+'</b>';
+ if(T<.9){const s=IVS[st];return 'step '+(st+1)+' · bracket ['+fmt(s.a)+', '+fmt(s.b)+'] · midpoint '+fmt(s.m)+' gives f = '+fmt(s.fm)+', '+(s.fm<N?'below N, so keep the right half':'above N, so keep the left half')}
+ return 'After 6 halvings the bracket is only 0.066 wide, and the crossing c ≈ 1.879 is trapped inside it, where f(c) = N = 1.';
+}
+
+/* Extreme value theorem: ceiling and floor, then why the conditions matter */
+function evt(k){
+ const B=[44,46,W-64,H-96],ph=T<.45?0:T<.72?1:2,fm=v=>v.toFixed(3).replace('-','−');
+ const f1=u=>2*Math.sin(u)+.4*u,xm=2*Math.PI-Math.acos(-.2),M1=f1(6.4),m1=f1(xm);
+ const R=[[-.3,6.8,-1,4],[-.3,2.6,-.3,2.6],[-.3,2.4,-.5,10]][ph],X=u=>B[0]+(u-R[0])/(R[1]-R[0])*B[2],Y=v=>B[1]+B[3]-(v-R[2])/(R[3]-R[2])*B[3];
+ [[0,2,4,6],[0,.5,1,1.5,2],[0,.5,1,1.5,2]][ph].forEach(u=>{ln(X(u),B[1],X(u),B[1]+B[3],k.line,1);tx(String(u),X(u),B[1]+B[3]+13,k.muted,10)});
+ [[-1,0,1,2,3,4],[0,.5,1,1.5,2,2.5],[0,2,4,6,8,10]][ph].forEach(v=>{ln(B[0],Y(v),B[0]+B[2],Y(v),k.line,1);tx(String(v),B[0]-6,Y(v),k.muted,10,'right')});
+ ln(B[0],Y(0),B[0]+B[2],Y(0),k.muted,1.5);ln(X(0),B[1],X(0),B[1]+B[3],k.muted,1.5);
+ const hd=[['Example 1: 2 sin x + 0.4x on [0, 6.4]','continuous: yes','closed interval: yes'],['Example 2: f(x) = x on the open (0, 2)','continuous: yes','closed interval: no'],['Example 3: 1/x on [0, 2], with f(0) = 0','continuous: no','closed interval: yes']][ph];
+ const mw=s=>{c.font='600 13px system-ui,sans-serif';const q=c.measureText(s);return q?q.width:s.length*7};
+ tx(hd[0],B[0],14,k.ink,14,'left');tx(hd[1],B[0],33,hd[1].indexOf(': no')>-1?k.c2:k.c3,13,'left');tx(hd[2],B[0]+mw(hd[1])+18,33,hd[2].indexOf(': no')>-1?k.c2:k.c3,13,'left');
+ let ro='';
+ if(ph===0){
+  path(120,t=>{const u=6.4*t;return[X(u),Y(f1(u))]},k.c1,3.5);
+  dot(X(0),Y(f1(0)),6,k.ink,k.card);dot(X(6.4),Y(M1),6,k.ink,k.card);
+  const cp=lerp(3.8,M1,ss(clamp((T-.06)/.14))),fp=lerp(-.9,m1,ss(clamp((T-.2)/.14)));
+  if(T>=.06)ln(B[0],Y(cp),B[0]+B[2],Y(cp),k.c3,2.5);
+  if(T>=.2)ln(B[0],Y(fp),B[0]+B[2],Y(fp),k.c2,2.5);
+  if(T>=.2){circ(X(6.4),Y(M1),9,k.c3,3);tx('absolute max, at the endpoint b',X(6.4)-12,Y(M1)-18,k.c3,12,'right');tx('only a local max',X(1.772),Y(f1(1.772))+18,k.muted,11)}
+  if(T>=.34){circ(X(xm),Y(m1),9,k.c2,3);tx('absolute min',X(xm),Y(m1)+20,k.c2,12)}
+  ro=T<.06?'f is continuous on a closed interval [a, b]. Lower a ceiling from above and raise a floor from below until each just touches the curve.':T<.2?'ceiling at y = '+fm(cp)+', still above the whole curve':T<.34?'The ceiling touches at the endpoint: highest value f(6.4) = <span class="k3">'+fm(M1)+'</span> · floor at y = '+fm(fp):'highest value f(6.4) = <span class="k3">'+fm(M1)+'</span> (an endpoint) · lowest value f(4.51) = <span class="k2">'+fm(m1)+'</span> (inside the interval)';
+ }else if(ph===1){
+  ln(X(0),Y(0),X(2),Y(2),k.c1,3.5);dot(X(0),Y(0),6,k.card,k.c1);dot(X(2),Y(2),6,k.card,k.c1);
+  const cp=lerp(2.5,2,ss(clamp((T-.47)/.11))),fp=lerp(-.25,0,ss(clamp((T-.58)/.09)));
+  if(T>=.47)ln(B[0],Y(cp),B[0]+B[2],Y(cp),k.c3,2.5);
+  if(T>=.58)ln(B[0],Y(fp),B[0]+B[2],Y(fp),k.c2,2.5);
+  if(T>=.58){tx('never reached',X(2)-12,Y(2)-16,k.c3,12,'right');tx('never reached',X(0)+12,Y(0)+18,k.c2,12,'left')}
+  ro=T<.47?'Now the interval is open: the endpoints x = 0 and x = 2 are left out (open circles).':T<.58?'ceiling at y = '+cp.toFixed(2)+'. Can it come down until it touches the graph?':'The ceiling stops at y = 2, but the point (2, 2) is not on the graph. Any lower ceiling cuts the graph, so there is <b>no maximum</b>, and likewise no minimum.';
+ }else{
+  path(100,t=>{const u=.1+1.9*t;return[X(u),Y(1/u)]},k.c1,3.5);
+  dot(X(0),Y(0),6,k.c1,k.card);tx('f(0) = 0',X(0)+10,Y(0)-12,k.c1,12,'left');
+  const cp=lerp(1,10,ss(clamp((T-.76)/.17)));
+  if(T>=.76){ln(B[0],Y(cp),B[0]+B[2],Y(cp),k.c3,2.5);if(1/cp>.1)path(40,t=>{const u=.1+(1/cp-.1)*t;return[X(u),Y(1/u)]},k.c2,4.5)}
+  if(T>.92)tx('no ceiling is high enough',B[0]+B[2]-6,B[1]+14,k.c2,12,'right');
+  ro=T<.76?'Here f jumps at x = 0, so f is not continuous, even though the interval [0, 2] is closed.':T<.93?'ceiling at y = '+cp.toFixed(1)+'. The pink part of the curve is still above it. 1/x climbs without limit near 0.':'No ceiling is high enough: 1/x beats every one near x = 0, so there is <b>no maximum</b>.';
+ }
+ return ro;
+}
+
+/* The chain rule: rates multiply */
+function chain(k){
+ const wide=W>=600,L=40,g=q=>q*q/2,x=lerp(.2,3.5,clamp((T-.05)/.87)),u=g(x),y=Math.sin(u),pr=x*Math.cos(u),h=1e-5,ms=(Math.sin(g(x+h))-y)/h;
+ let R;if(wide){const gap=40,pw=(W-L-24-2*gap)/3,top=64,ph=H-top-40;R=[0,1,2].map(i=>[L+i*(pw+gap),top,pw,ph])}else{const ph=(H-190)/3;R=[0,1,2].map(i=>[44,40+i*(ph+54),W-64,ph])}
+ const mkp=(r,xr,yr)=>({r:r,X:q=>r[0]+(q-xr[0])/(xr[1]-xr[0])*r[2],Y:q=>r[1]+r[3]-(q-yr[0])/(yr[1]-yr[0])*r[3],sx:r[2]/(xr[1]-xr[0]),sy:r[3]/(yr[1]-yr[0])});
+ const P=[mkp(R[0],[0,3.6],[0,6.8]),mkp(R[1],[0,6.8],[-1.3,1.3]),mkp(R[2],[0,3.6],[-1.3,1.3])];
+ const xt=[[0,1,2,3],[0,2,4,6],[0,1,2,3]],yt=[[0,2,4,6],[-1,0,1],[-1,0,1]],ti=['u = x²/2  ·  the inner function','y = sin u  ·  the outer function','y = sin(x²/2)  ·  the composite'];
+ const fn=[g,Math.sin,q=>Math.sin(g(q))],lim=[3.5,6.5,3.5],now=[x,u,x],val=[u,y,y],sl=[x,Math.cos(u),pr],col=[k.c1,k.c2,k.c3];
+ P.forEach((p,i)=>{const r=p.r;
+  xt[i].forEach(q=>{ln(p.X(q),r[1],p.X(q),r[1]+r[3],k.line,1);tx(String(q),p.X(q),r[1]+r[3]+13,k.muted,10)});
+  yt[i].forEach(q=>{ln(r[0],p.Y(q),r[0]+r[2],p.Y(q),q===0&&i>0?k.muted:k.line,q===0&&i>0?1.5:1);tx(String(q),r[0]-6,p.Y(q),k.muted,10,'right')});
+  ln(r[0],r[1],r[0],r[1]+r[3],k.muted,1.5);if(i===0)ln(r[0],r[1]+r[3],r[0]+r[2],r[1]+r[3],k.muted,1.5);
+  tx(ti[i],r[0],r[1]-10,k.ink,13,'left');
+  path(160,t=>{const q=lim[i]*t;return[p.X(q),p.Y(fn[i](q))]},k.line,2.5);
+  path(Math.max(2,Math.ceil(now[i]/lim[i]*160)),t=>{const q=now[i]*t;return[p.X(q),p.Y(fn[i](q))]},col[i],3.5);
+  ln(p.X(now[i]),p.Y(0),p.X(now[i]),p.Y(val[i]),k.muted,1.5,[4,4]);if(i===0)ln(p.X(0),p.Y(u),p.X(x),p.Y(u),k.muted,1.5,[4,4]);
+  const n=Math.hypot(p.sx,sl[i]*p.sy),dx=p.sx/n*34,dy=-sl[i]*p.sy/n*34;ln(p.X(now[i])-dx,p.Y(val[i])-dy,p.X(now[i])+dx,p.Y(val[i])+dy,col[i],3.5);
+  const px=p.X(now[i]),py=p.Y(val[i]),right=px>r[0]+r[2]-80;dot(px,py,7,k.ink,k.card);tx('slope '+f3(sl[i]),px+(right?-10:10),py-16,col[i],12,right?'right':'left')});
+ if(wide)[0,1].forEach(i=>tx('→',R[i][0]+R[i][2]+20,R[i][1]+R[i][3]/2,k.muted,24));else[0,1].forEach(i=>tx('↓',W/2,R[i][1]+R[i][3]+30,k.muted,18));
+ tx('dy/dx = dy/du × du/dx',W/2,wide?24:16,k.ink,wide?20:15);
+ return 'x = '+x.toFixed(2)+' · u = x²/2 = '+u.toFixed(2)+' · du/dx = x = <span class="k1">'+f3(x)+'</span> · dy/du = cos u = <span class="k2">'+f3(Math.cos(u))+'</span> · product = <span class="k3">'+f3(pr)+'</span> · measured slope of the composite = <b>'+f3(ms)+'</b>';
+}
+
+/* Usain Bolt: actual speed vs average speed (Berlin 2009, official 10 m splits) */
+const BT=[0,.146,1.89,2.88,3.78,4.64,5.47,6.29,7.10,7.92,8.75,9.58],BX=[0,0,10,20,30,40,50,60,70,80,90,100];
+const BD=(()=>{const n=BT.length,h=[],m=[];for(let i=0;i<n-1;i++){h.push(BT[i+1]-BT[i]);m.push((BX[i+1]-BX[i])/h[i])}
+ const d=new Array(n).fill(0);
+ for(let i=1;i<n-1;i++){if(m[i-1]*m[i]>0){const w1=2*h[i]+h[i-1],w2=h[i]+2*h[i-1];d[i]=(w1+w2)/(w1/m[i-1]+w2/m[i])}}
+ d[n-1]=((2*h[n-2]+h[n-3])*m[n-2]-h[n-2]*m[n-3])/(h[n-2]+h[n-3]);return d})();
+function bolt(t){
+ t=Math.min(Math.max(t,0),9.58);let i=0;while(i<BT.length-2&&t>BT[i+1])i++;
+ const h=BT[i+1]-BT[i],s=(t-BT[i])/h,s2=s*s,s3=s2*s;
+ return[(2*s3-3*s2+1)*BX[i]+(s3-2*s2+s)*h*BD[i]+(-2*s3+3*s2)*BX[i+1]+(s3-s2)*h*BD[i+1],((6*s2-6*s)*BX[i]+(-6*s2+6*s)*BX[i+1])/h+(3*s2-4*s+1)*BD[i]+(3*s2-2*s)*BD[i+1]];
+}
+const BPK=(()=>{let b=[0,0];for(let t=0;t<=9.58;t+=.005){const v=bolt(t)[1];if(v>b[1])b=[t,v]}return b})();
+function bolt100(k){
+ const TT=9.58,avg=100/TT,t=TT*clamp((T-.04)/.88),bb=bolt(t),xb=bb[0],vb=bb[1],xa=avg*t,gap=xa-xb;
+ const B0=44,Bw=W-64,MX=m=>B0+m/100*Bw,l1=86,l2=122,fin=T>.93;
+ tx('Bolt, 100 m world record, 9.58 s',B0,14,k.ink,14,'left');tx('t = '+t.toFixed(2)+' s',W-20,14,k.ink,14,'right');
+ tx('Bolt now: '+vb.toFixed(1)+' m/s ('+(vb*3.6).toFixed(1)+' km/h)',B0,34,k.c1,13,'left');
+ tx('steady runner: '+avg.toFixed(2)+' m/s ('+(avg*3.6).toFixed(1)+' km/h)',B0,50,k.c4,13,'left');
+ [l1,l2].forEach(y=>{c.globalAlpha=.12;c.fillStyle=k.muted;c.fillRect(B0,y-14,Bw,28);c.globalAlpha=1;ln(B0,y-14,B0+Bw,y-14,k.line,1);ln(B0,y+14,B0+Bw,y+14,k.line,1)});
+ for(let m=0;m<=100;m+=10){ln(MX(m),l1-14,MX(m),l2+14,k.line,1);if(W>=500||m%20===0)tx(String(m),MX(m),l2+28,k.muted,10)}
+ ln(MX(100),l1-14,MX(100),l2+14,k.ink,2.5);tx('m',B0-14,l2+28,k.muted,10);
+ ln(MX(0),l1,MX(xb),l1,k.c1,3);ln(MX(0),l2,MX(xa),l2,k.c4,3);
+ if(Math.abs(gap)>.4)ln(MX(xb),l2+18,MX(xa),l2+18,k.c2,4);
+ dot(MX(xb),l1,9,k.c1,k.card);dot(MX(xa),l2,9,k.c4,k.card);
+ tx(gap>.05?'Bolt trails the steady runner by '+gap.toFixed(1)+' m':'both reach the line together',B0,l2+46,gap>.05?k.c2:k.c3,13,'left');
+ const gy=200,gh=H-gy-44,GX=u=>B0+u/10*Bw,GY=v=>gy+gh-v/14*gh;
+ [0,4,8,12].forEach(v=>{ln(B0,GY(v),B0+Bw,GY(v),v===0?k.muted:k.line,v===0?1.5:1);tx(String(v),B0-6,GY(v),k.muted,10,'right')});
+ for(let u=0;u<=10;u+=2){ln(GX(u),gy,GX(u),gy+gh,k.line,1);tx(String(u),GX(u),gy+gh+13,k.muted,10)}
+ ln(B0,gy,B0,gy+gh,k.muted,1.5);tx('speed (m/s) over time (s)',B0,gy-10,k.ink,13,'left');
+ const N=Math.max(2,Math.ceil(t/TT*220));
+ for(let i=0;i<N&&t>.02;i++){const u0=t*i/N,u1=t*(i+1)/N,v=bolt((u0+u1)/2)[1];c.globalAlpha=.3;c.fillStyle=v<avg?k.c2:k.c3;c.fillRect(GX(u0),Math.min(GY(v),GY(avg)),GX(u1)-GX(u0)+.6,Math.abs(GY(v)-GY(avg)))}
+ c.globalAlpha=1;
+ path(200,u=>[GX(TT*u),GY(bolt(TT*u)[1])],k.line,2.5,[5,5]);
+ if(t>.02)path(N,u=>[GX(t*u),GY(bolt(t*u)[1])],k.c1,3.5);
+ ln(B0,GY(avg),B0+Bw,GY(avg),k.c4,2,[6,5]);tx('average '+avg.toFixed(2)+' m/s',B0+Bw-4,GY(avg)+14,k.c4,12,'right');
+ if(t>=BPK[0]){circ(GX(BPK[0]),GY(BPK[1]),8,k.c3,2.5);tx('top speed '+BPK[1].toFixed(1)+' m/s',GX(BPK[0]),GY(BPK[1])-18,k.ink,12)}
+ dot(GX(t),GY(vb),7,k.c1,k.card);
+ if(fin)return 'Both cross the line at 9.58 s. Average speed = 100 m ÷ 9.58 s = <span class="k1">10.44 m/s</span> (37.6 km/h), but Bolt\u2019s real speed peaked near <b>'+BPK[1].toFixed(1)+' m/s</b> ('+(BPK[1]*3.6).toFixed(1)+' km/h). The pink area (slower than average) equals the teal area (faster).';
+ return 't = '+t.toFixed(2)+' s · Bolt: '+xb.toFixed(1)+' m at <span class="k1">'+vb.toFixed(1)+' m/s</span> · steady runner: '+xa.toFixed(1)+' m at <span style="color:var(--c4)">'+avg.toFixed(2)+' m/s</span> · '+(vb<avg?'Bolt is running <span class="k2">slower</span> than average':'Bolt is running <span class="k3">faster</span> than average');
+}
+
+/* Taylor polynomials hugging sin x and cos x */
+function taylor(k){
+ const sinp=T<.5,u=sinp?clamp((T-.04)/.42):clamp((T-.54)/.42),sp=u*8,s=Math.min(7,Math.floor(sp)),q=sp>=8?1:sp-s,w=s===0?1:ss(clamp(q/.45));
+ const fa=n=>{let r=1;for(let i=2;i<=n;i++)r*=i;return r},pw=j=>sinp?2*j+1:2*j,wt=j=>j<s?1:j===s?w:0;
+ const F=x=>sinp?Math.sin(x):Math.cos(x),P=x=>{let r=0;for(let j=0;j<=s;j++)r+=wt(j)*(j%2?-1:1)*Math.pow(x,pw(j))/fa(pw(j));return r};
+ const md=s===0?1:(w>.5?s+1:s),deg=pw(md-1),sup=n=>String(n).split('').map(d=>'⁰¹²³⁴⁵⁶⁷⁸⁹'[+d]).join('');
+ const term=j=>{const p=pw(j);return(p===0?'1':p===1?'x':'x'+sup(p))+(p>1?'/'+p+'!':'')};
+ const sg=j=>j%2?' − ':' + ';
+ let str=term(0);if(md<=4){for(let j=1;j<md;j++)str+=sg(j)+term(j)}else{str+=sg(1)+term(1)+sg(2)+term(2)+' …'+sg(md-1)+term(md-1)}
+ let r=0;for(let x=0;x<=10;x+=.02){if(Math.abs(P(x)-F(x))>.05)break;r=x}
+ const rt=r>=9.98?'10+':r.toFixed(1);
+ const B=[44,52,W-64,H-112],xl=-10,xr=10,yl=-3,yh=3,GX=x=>B[0]+(x-xl)/(xr-xl)*B[2],GY=v=>B[1]+B[3]-(Math.max(-6,Math.min(6,v))-yl)/(yh-yl)*B[3];
+ tx((sinp?'sin x':'cos x')+' and its Taylor polynomial at x = 0',B[0],14,k.ink,14,'left');tx('P(x) = '+str,B[0],33,k.c2,13,'left');
+ [-2,0,2].forEach(v=>{ln(B[0],GY(v),B[0]+B[2],GY(v),v===0?k.muted:k.line,v===0?1.5:1);tx(String(v),B[0]-6,GY(v),k.muted,10,'right')});
+ for(let m=-3;m<=3;m++){ln(GX(m*Math.PI),B[1],GX(m*Math.PI),B[1]+B[3],m===0?k.muted:k.line,m===0?1.5:1);tx(m===0?'0':(m===1?'π':m===-1?'−π':m+'π'),GX(m*Math.PI),B[1]+B[3]+13,k.muted,10)}
+ c.save();c.beginPath();c.rect(B[0],B[1],B[2],B[3]);c.clip();
+ const rr=Math.min(r,10);c.globalAlpha=.14;c.fillStyle=k.c3;c.fillRect(GX(-rr),B[1],GX(rr)-GX(-rr),B[3]);c.globalAlpha=1;ln(GX(-rr),B[1],GX(-rr),B[1]+B[3],k.c3,1.5,[4,4]);ln(GX(rr),B[1],GX(rr),B[1]+B[3],k.c3,1.5,[4,4]);
+ path(400,t=>{const x=xl+(xr-xl)*t;return[GX(x),GY(F(x))]},k.c1,4);
+ path(400,t=>{const x=xl+(xr-xl)*t;return[GX(x),GY(P(x))]},k.c2,3);
+ c.restore();
+ circ(GX(0),GY(F(0)),7,k.ink,2);tx('error < 0.05 for |x| < '+rt,GX(0),B[1]+B[3]-10,k.c3,12);
+ return 'degree <b>'+deg+'</b> ('+md+' term'+(md>1?'s':'')+') · within 0.05 of '+(sinp?'sin':'cos')+' x for |x| &lt; <span class="k3">'+rt+'</span> · at x = π the polynomial gives <span class="k2">'+f3(P(Math.PI))+'</span> (true value '+f3(F(Math.PI))+')';
+}
+
+/* Related rates: water filling an inverted cone */
+function cone(k){
+ const R=20,H0=12,wide=W>=600,tOf=q=>Math.PI*q*q*q/(12*R),ta=tOf(2),tb=tOf(11.5),t=lerp(ta,tb,clamp((T-.05)/.88));
+ const h=Math.cbrt(12*R*t/Math.PI),dh=R/(Math.PI/4*h*h),V=Math.PI/12*h*h*h,now=performance.now();
+ const SB=wide?[20,24,W*.46,H-56]:[16,18,W-32,H*.52],s=Math.min(SB[2]/15,SB[3]/16.5),cx=SB[0]+SB[2]/2,gy=SB[1]+SB[3]-8,top=gy-H0*s,rx=6*s,ry=rx*.17,ys=gy-h*s,rl=h/2*s,rly=rl*.17;
+ c.beginPath();c.moveTo(cx,gy);c.lineTo(cx-rl,ys);c.ellipse(cx,ys,rl,rly,0,Math.PI,0,true);c.closePath();c.globalAlpha=.55;c.fillStyle=k.c1;c.fill();
+ c.beginPath();c.ellipse(cx,ys,rl,rly,0,0,TAU);c.globalAlpha=.35;c.fill();c.globalAlpha=1;c.strokeStyle=k.c1;c.lineWidth=1.5;c.stroke();
+ ln(cx,gy,cx-rx,top,k.ink,2.5);ln(cx,gy,cx+rx,top,k.ink,2.5);c.beginPath();c.ellipse(cx,top,rx,ry,0,0,TAU);c.strokeStyle=k.ink;c.lineWidth=2.5;c.stroke();
+ ln(cx-2.6*s,top-3.4*s,cx,top-3.4*s,k.muted,8);tx('inflow 20 ft³/min',cx-2.6*s,top-3.4*s-14,k.c1,12,'left');
+ c.lineDashOffset=-now/28;ln(cx,top-3.4*s,cx,ys,k.c1,4,[7,6]);c.lineDashOffset=0;
+ const ph=(now/600)%1,rr=8+ph*16;c.beginPath();c.ellipse(cx,ys,rr,rr*.25,0,0,TAU);c.strokeStyle='rgba(255,255,255,'+.7*(1-ph)+')';c.lineWidth=1.5;c.stroke();
+ ln(cx,gy,cx,ys,k.ink,1.5,[4,4]);tx('h',cx-8,(gy+ys)/2,k.ink,13,'right');
+ ln(cx,ys,cx+rl,ys,k.c2,3.5);tx('r',cx+rl/2,ys+rly+12,k.c2,13);dot(cx,gy,4,k.ink);
+ const xa=cx+rl+18,al=clamp(8+dh*10,10,70),arrow=(x1,y1,x2,y2,col)=>{ln(x1,y1,x2,y2,col,3.5);const a=Math.atan2(y2-y1,x2-x1);ln(x2,y2,x2-9*Math.cos(a-.45),y2-9*Math.sin(a-.45),col,3.5);ln(x2,y2,x2-9*Math.cos(a+.45),y2-9*Math.sin(a+.45),col,3.5)};
+ arrow(xa,ys+al/2,xa,ys-al/2,k.c3);tx(dh.toFixed(2),xa+8,ys,k.c3,12,'left');
+ const gx0=SB[0]+SB[2]+40,G=wide?[gx0,H*.5,W-gx0-34,H*.34]:[44,H*.66,W-74,H*.22];
+ const GX=q=>G[0]+q/20*G[2],GY=q=>G[1]+G[3]-q/7*G[3],dhOf=q=>{const hh=Math.cbrt(12*R*q/Math.PI);return R/(Math.PI/4*hh*hh)};
+ if(wide){tx('V = (1/3)πr²h = (π/12)h³,  since r = h/2',gx0,H*.1,k.ink,15,'left');tx('dV/dt = (π/4)h² × dh/dt',gx0,H*.18,k.c2,16,'left');tx('dh/dt = 80 ÷ (πh²)',gx0,H*.26,k.c3,16,'left');tx('inflow dV/dt = 20 ft³/min, always',gx0,H*.34,k.c1,13,'left')}
+ [0,2,4,6].forEach(v=>{ln(G[0],GY(v),G[0]+G[2],GY(v),k.line,1);tx(String(v),G[0]-6,GY(v),k.muted,10,'right')});
+ [0,5,10,15,20].forEach(v=>{ln(GX(v),G[1],GX(v),G[1]+G[3],k.line,1);tx(String(v),GX(v),G[1]+G[3]+13,k.muted,10)});
+ ln(G[0],G[1]+G[3],G[0]+G[2],G[1]+G[3],k.muted,1.5);ln(G[0],G[1],G[0],G[1]+G[3],k.muted,1.5);
+ tx('rate the level rises, dh/dt (ft/min), over time (min)',G[0],G[1]-10,k.ink,12,'left');
+ path(120,u=>{const q=lerp(ta,tb,u);return[GX(q),GY(dhOf(q))]},k.line,2.5,[5,5]);
+ if(t>ta+.01)path(Math.max(2,Math.ceil((t-ta)/(tb-ta)*120)),u=>{const q=lerp(ta,t,u);return[GX(q),GY(dhOf(q))]},k.c3,3.5);
+ const t6=tOf(6);circ(GX(t6),GY(dhOf(t6)),5,k.ink,2);tx('h = 6 ft',GX(t6)+9,GY(dhOf(t6))-12,k.muted,11,'left');
+ dot(GX(t),GY(dh),6,k.c3,k.card);
+ return 'h = '+h.toFixed(2)+' ft · r = h/2 = '+(h/2).toFixed(2)+' ft · V = (π/12)h³ = '+V.toFixed(1)+' ft³ · inflow <span class="k1">20 ft³/min</span> · level rises at dh/dt = 80 ÷ (πh²) = <span class="k3">'+dh.toFixed(3)+' ft/min</span>';
+}
+
+/* Related rates: a person walks away from a lamp post */
+function lamp(k){
+ const L=15,ph=6,v=5,wide=W>=600,t=3.2*clamp((T-.05)/.9),x=2+v*t,sh=ph*x/(L-ph),y=x+sh;
+ const SB=wide?[20,24,W*.56,H-60]:[16,18,W-32,H*.5],s=Math.min(SB[2]/36,(SB[3]-56)/17),p0=SB[0]+1.5*s,gy=SB[1]+SB[3]-52,X=q=>p0+q*s,bulb=gy-L*s;
+ const g=c.createRadialGradient(p0,bulb,2,p0,bulb,5*s);g.addColorStop(0,'rgba(255,214,90,.55)');g.addColorStop(1,'rgba(255,214,90,0)');c.fillStyle=g;c.fillRect(p0-5*s,bulb-5*s,10*s,10*s);
+ ln(SB[0],gy,SB[0]+SB[2],gy,k.muted,2.5);ln(p0,gy,p0,bulb,k.ink,4);dot(p0,bulb,7,'#ffd25a',k.ink);
+ ln(p0,bulb,X(y),gy,'#e7b520',2);
+ ln(X(x),gy,X(y),gy,k.c2,7);dot(X(y),gy,6,k.c2,k.card);
+ const hx=X(x),w=x*1.5,a1=Math.sin(w)*.5,a2=-a1,hip=gy-2.9*s,shd=gy-4.6*s,limb=(ox,oy,len,a)=>ln(ox,oy,ox+Math.sin(a)*len,oy+Math.cos(a)*len,k.c1,3.5);
+ ln(hx,shd,hx,hip,k.c1,3.5);limb(hx,hip,2.9*s,a1);limb(hx,hip,2.9*s,a2);limb(hx,shd,1.8*s,a2*1.2);limb(hx,shd,1.8*s,a1*1.2);dot(hx,gy-5.45*s,.55*s,k.c1,k.card);
+ tx('15 ft',p0+8,(gy+bulb)/2,k.muted,11,'left');tx('6 ft',hx-12,gy-3*s,k.muted,11,'right');
+ const br=(x1,x2,yy,col,lab)=>{ln(x1,yy,x2,yy,col,3);ln(x1,yy-5,x1,yy+5,col,2);ln(x2,yy-5,x2,yy+5,col,2);tx(lab,(x1+x2)/2,yy+14,col,12)};
+ br(p0,hx,gy+14,k.c1,'x = '+x.toFixed(1)+' ft');br(hx,X(y),gy+14,k.c2,'shadow s = '+sh.toFixed(1)+' ft');br(p0,X(y),gy+38,k.c3,'tip: x + s = '+y.toFixed(1)+' ft');
+ const arrow=(x1,y1,x2,y2,col)=>{ln(x1,y1,x2,y2,col,3.5);const a=Math.atan2(y2-y1,x2-x1);ln(x2,y2,x2-9*Math.cos(a-.45),y2-9*Math.sin(a-.45),col,3.5);ln(x2,y2,x2-9*Math.cos(a+.45),y2-9*Math.sin(a+.45),col,3.5)};
+ arrow(hx,gy-6.9*s,hx+v*5,gy-6.9*s,k.c1);tx('5 ft/s',hx+v*2.5,gy-6.9*s-12,k.c1,12);
+ const vt=v*(1+ph/(L-ph));arrow(X(y),gy-16,X(y)+vt*5,gy-16,k.c2);tx(vt.toFixed(2)+' ft/s',X(y)+vt*2.5,gy-30,k.c2,12);
+ const gx0=SB[0]+SB[2]+40,G=wide?[gx0,H*.52,W-gx0-30,H*.32]:[44,H*.62,W-74,H*.24];
+ const GX=q=>G[0]+q/3.2*G[2],GY=q=>G[1]+G[3]-q/35*G[3],xs=q=>2+v*q,ss_=q=>ph/(L-ph)*xs(q),ys=q=>xs(q)+ss_(q);
+ if(wide){tx('(x + s) ÷ 15 = s ÷ 6   →   s = (2/3)x',gx0,H*.1,k.ink,16,'left');tx('ds/dt = (2/3) × dx/dt = '+(v*ph/(L-ph)).toFixed(2)+' ft/s',gx0,H*.2,k.c3,15,'left');tx('d(x + s)/dt = (5/3) × dx/dt = '+vt.toFixed(2)+' ft/s',gx0,H*.3,k.c2,15,'left');tx('the person walks at dx/dt = 5 ft/s',gx0,H*.4,k.c1,13,'left')}
+ [0,10,20,30].forEach(q=>{ln(G[0],GY(q),G[0]+G[2],GY(q),k.line,1);tx(String(q),G[0]-6,GY(q),k.muted,10,'right')});
+ [0,1,2,3].forEach(q=>{ln(GX(q),G[1],GX(q),G[1]+G[3],k.line,1);tx(String(q),GX(q),G[1]+G[3]+13,k.muted,10)});
+ ln(G[0],G[1]+G[3],G[0]+G[2],G[1]+G[3],k.muted,1.5);ln(G[0],G[1],G[0],G[1]+G[3],k.muted,1.5);
+ tx('distance (ft) over time (s)',G[0],G[1]-10,k.ink,12,'left');
+ [[ys,k.c2,'tip: '+vt.toFixed(2)+' ft/s'],[xs,k.c1,'person: 5 ft/s'],[ss_,k.c3,'shadow: '+(v*ph/(L-ph)).toFixed(2)+' ft/s']].forEach(o=>{path(2,u=>[GX(3.2*u),GY(o[0](3.2*u))],k.line,2,[4,5]);if(t>.01)path(2,u=>[GX(t*u),GY(o[0](t*u))],o[1],3.5);dot(GX(t),GY(o[0](t)),5.5,o[1],k.card);tx(o[2],GX(3.2)-4,GY(o[0](3.2))-11,o[1],11,'right')});
+ return 'x = '+x.toFixed(1)+' ft · shadow s = (2/3)x = '+sh.toFixed(2)+' ft · tip at (5/3)x = '+y.toFixed(1)+' ft · person <span class="k1">5 ft/s</span> · shadow grows <span class="k3">'+(v*ph/(L-ph)).toFixed(2)+' ft/s</span> · tip moves <span class="k2">'+vt.toFixed(2)+' ft/s</span>';
+}
+
+/* Parabola: a conic section, and the focus-directrix property */
+function parab(k){
+ const wide=W>=600,ph=T<.42?0:T<.76?1:2,sq=Math.sqrt;
+ tx(['A parabola is a slice of a cone','Every point is as far from the focus as from the directrix','Move the focus and the directrix moves with it'][ph],W/2,16,k.ink,wide?17:13);
+ if(ph===0){
+  const m=ss(clamp((T-.03)/.25)),cc=1.2,deg=Math.round(Math.atan(m)*180/Math.PI),e=m*sq(2)/sq(1+m*m),par=Math.abs(m-1)<.015;
+  const type=m<.02?'circle':par?'parabola':m<1?'ellipse':'hyperbola';
+  const Lr=wide?[20,56,W*.5-30,H-100]:[16,44,W-32,(H-120)/2],Rr=wide?[W*.5+10,56,W*.5-30,H-100]:[16,44+(H-120)/2+36,W-32,(H-120)/2];
+  const sc=Math.min(Lr[2],Lr[3])/6.6,cx=Lr[0]+Lr[2]/2,cy=Lr[1]+Lr[3]/2,LX=u=>cx+u*sc,LZ=u=>cy-u*sc;
+  tx('cutting a double cone with a plane',Lr[0],Lr[1]-10,k.muted,12,'left');
+  c.globalAlpha=.1;c.fillStyle=k.muted;[[1],[-1]].forEach(o=>{c.beginPath();c.moveTo(LX(0),LZ(0));c.lineTo(LX(-3.2),LZ(o[0]*3.2));c.lineTo(LX(3.2),LZ(o[0]*3.2));c.closePath();c.fill()});c.globalAlpha=1;
+  [3.2,-3.2].forEach(z=>{c.beginPath();c.ellipse(LX(0),LZ(z),3.2*sc,.5*sc,0,0,TAU);c.strokeStyle=k.muted;c.lineWidth=1.5;c.stroke()});
+  ln(LX(-3.2),LZ(-3.2),LX(3.2),LZ(3.2),k.ink,2.5);ln(LX(-3.2),LZ(3.2),LX(3.2),LZ(-3.2),k.ink,2.5);ln(LX(0),LZ(-3.2),LX(0),LZ(3.2),k.muted,1,[4,4]);
+  c.save();c.beginPath();c.rect(Lr[0],Lr[1],Lr[2],Lr[3]);c.clip();ln(LX(-3.4),LZ(-3.4*m+cc),LX(3.4),LZ(3.4*m+cc),k.c2,4);c.restore();
+  [1,-1].forEach(g=>{if(Math.abs(g-m)>.02){const xi=cc/(g-m),zi=m*xi+cc;if(Math.abs(xi)<=3.2&&Math.abs(zi)<=3.2)dot(LX(xi),LZ(zi),6,k.c3,k.card)}});
+  tx('plane tilt '+deg+'°  (cone side: 45°)',Lr[0]+Lr[2]/2,Lr[1]+Lr[3]-6,k.c2,12);if(par)tx('parallel to the side of the cone',LX(1.6),LZ(2.9),k.c3,12,'left');
+  const scr=Math.min(Rr[2],Rr[3])/6.8,rcx=Rr[0]+Rr[2]/2,rcy=Rr[1]+Rr[3]/2,RX=u=>rcx+u*scr,RY=v=>rcy-v*scr,A=(m*m-1)/(1+m*m),B=2*m*cc/sq(1+m*m),C=cc*cc;
+  tx('the shape of the cut',Rr[0],Rr[1]-10,k.muted,12,'left');
+  ln(Rr[0],rcy,Rr[0]+Rr[2],rcy,k.line,1);ln(rcx,Rr[1],rcx,Rr[1]+Rr[3],k.line,1);
+  c.save();c.beginPath();c.rect(Rr[0],Rr[1],Rr[2],Rr[3]);c.clip();
+  [1,-1].forEach(sg=>{c.beginPath();let on=false;for(let i=0;i<=400;i++){const u=-3.3+6.6*i/400,d=A*u*u+B*u+C;if(d<0){on=false;continue}const y=sg*sq(d);on?c.lineTo(RX(u),RY(y)):c.moveTo(RX(u),RY(y));on=true}c.strokeStyle=par?k.c3:k.c2;c.lineWidth=3.5;c.stroke()});
+  c.restore();
+  tx(type,rcx,Rr[1]+Rr[3]-26,par?k.c3:k.c2,wide?22:18);tx('eccentricity e = '+e.toFixed(2),rcx,Rr[1]+Rr[3]-6,k.muted,12);
+  return par?'The plane is parallel to the side of the cone, so the cut is a <b>parabola</b>, with eccentricity e = 1.':'plane tilt '+deg+'° (the cone\u2019s side is 45°) · the cut is '+(type==='ellipse'?'an ':'a ')+'<b>'+type+'</b> · eccentricity e = '+e.toFixed(2);
+ }
+ const u=clamp((T-.76)/.22),p=ph===1?1:(u<.5?lerp(1,.55,ss(u/.5)):lerp(.55,1.6,ss((u-.5)/.5))),xP=ph===1?lerp(-3.4,3.4,clamp((T-.43)/.31)):2,yP=xP*xP/(4*p);
+ const G=[44,40,W-64,H-130],sc=Math.min(G[2]/8.8,G[3]/6.6),cx=G[0]+G[2]/2,PX=q=>cx+q*sc,PY=v=>G[1]+G[3]-(v+2.2)*sc;
+ c.save();c.beginPath();c.rect(G[0],G[1],G[2],G[3]);c.clip();
+ ln(PX(0),PY(-2.2),PX(0),G[1],k.muted,1,[4,4]);
+ ln(G[0],PY(-p),G[0]+G[2],PY(-p),k.c2,3);
+ if(ph===1){path(200,t=>{const q=-4+8*t;return[PX(q),PY(q*q/(4*p))]},k.line,2.5,[5,5]);path(Math.max(2,Math.ceil((xP+3.4)/6.8*160)),t=>{const q=-3.4+(xP+3.4)*t;return[PX(q),PY(q*q/(4*p))]},k.c3,3.5)}
+ else path(200,t=>{const q=-4+8*t;return[PX(q),PY(q*q/(4*p))]},k.c3,3.5);
+ ln(PX(xP),PY(yP),PX(0),PY(p),k.c1,3);ln(PX(xP),PY(yP),PX(xP),PY(-p),k.c2,3);
+ const sg=xP>=0?-1:1;c.beginPath();c.moveTo(PX(xP),PY(-p)-.22*sc);c.lineTo(PX(xP+sg*.22),PY(-p)-.22*sc);c.lineTo(PX(xP+sg*.22),PY(-p));c.strokeStyle=k.c2;c.lineWidth=1.5;c.stroke();
+ if(ph===2){ln(PX(-3.2),PY(0),PX(-3.2),PY(p),k.c1,3);ln(PX(-3.2),PY(0),PX(-3.2),PY(-p),k.c2,3);tx('p',PX(-3.2)-10,PY(p/2),k.c1,13);tx('p',PX(-3.2)-10,PY(-p/2),k.c2,13)}
+ dot(PX(0),PY(0),4.5,k.ink);dot(PX(0),PY(p),7,k.c1,k.card);dot(PX(xP),PY(-p),5.5,k.c2,k.card);dot(PX(xP),PY(yP),7,k.ink,k.card);
+ c.restore();
+ tx('directrix: y = −'+p.toFixed(2),G[0]+6,PY(-p)+14,k.c2,12,'left');tx('focus F',PX(0)+12,PY(p)-2,k.c1,12,'left');tx('vertex',PX(0)+10,PY(0)+14,k.muted,11,'left');
+ const pf=sq(xP*xP+(yP-p)*(yP-p)),pd=yP+p,side=xP>=0?1:-1;
+ tx('PF',PX(xP/2)+side*12,PY((yP+p)/2),k.c1,12);tx('PD',PX(xP)+side*14,PY((yP-p)/2),k.c2,12);tx('P',PX(xP)-side*10,PY(yP)-12,k.ink,12);
+ const bl=q=>q*(W-170)/6.5,by=G[1]+G[3]+26;
+ [[pf,k.c1,'PF',by],[pd,k.c2,'PD',by+28]].forEach(o=>{tx(o[2],44,o[3],o[1],13,'left');c.globalAlpha=.85;c.fillStyle=o[1];c.fillRect(74,o[3]-7,bl(o[0]),14);c.globalAlpha=1;tx(o[0].toFixed(3),74+bl(o[0])+8,o[3],o[1],12,'left')});
+ return ph===1?'P = ('+f3(xP)+', '+f3(yP)+') · distance to the focus PF = <span class="k1">'+f3(pf)+'</span> · distance to the directrix PD = <span class="k2">'+f3(pd)+'</span> · PF = PD at every point':'p = '+p.toFixed(2)+' · focus (0, '+p.toFixed(2)+') · directrix y = −'+p.toFixed(2)+' · the vertex is exactly halfway between them · at P: PF = <span class="k1">'+f3(pf)+'</span> = PD = <span class="k2">'+f3(pd)+'</span>';
+}
+
+/* Ellipse: the string-and-pins construction, and how the foci shape it */
+function ellipseScene(k){
+ const A=T<.55,a=4,sq=Math.sqrt,wide=W>=600;
+ let cf=2.4;if(!A){const u=clamp((T-.57)/.4);cf=u<.6?3.6*ss(u/.6):lerp(3.6,2.4,ss((u-.6)/.4))}
+ const b=sq(a*a-cf*cf),G=[16,38,W-32,H-128],sc=Math.min(G[2]/10.4,G[3]/6.8),cx=G[0]+G[2]/2,cy=G[1]+G[3]/2,PX=q=>cx+q*sc,PY=v=>cy-v*sc;
+ tx(A?'Two pins and a loop of string draw an ellipse':'Slide the pins: the shape changes, the string stays 2a long',W/2,16,k.ink,wide?17:13);
+ ln(PX(-5),cy,PX(5),cy,k.line,1);ln(cx,PY(3.4),cx,PY(-3.4),k.line,1);
+ const th=TAU*clamp((T-.04)/.49),ell=(q)=>[PX(a*Math.cos(q)),PY(b*Math.sin(q))];
+ path(200,t=>ell(TAU*t),A?k.line:k.c3,A?2.5:3.5,A?[5,5]:null);
+ const F1=PX(-cf),F2=PX(cf),lab=(x1,y1,x2,y2,s,col)=>{const mx=(x1+x2)/2,my=(y1+y2)/2,dx=x2-x1,dy=y2-y1,n=Math.hypot(dx,dy)||1;tx(s,mx-dy/n*13,my+dx/n*13,col,12)};
+ dot(F1,cy,6.5,k.ink,k.card);dot(F2,cy,6.5,k.ink,k.card);tx('F\u2081',F1,cy+17,k.ink,12);tx('F\u2082',F2,cy+17,k.ink,12);dot(cx,cy,3,k.muted);
+ if(A){
+  if(th>.01)path(Math.max(2,Math.ceil(th/TAU*200)),t=>ell(th*t),k.c3,3.5);
+  const px=a*Math.cos(th),py=b*Math.sin(th),d1=Math.hypot(px+cf,py),d2=Math.hypot(px-cf,py),X=PX(px),Y=PY(py);
+  ln(F1,cy,X,Y,k.c1,3);ln(X,Y,F2,cy,k.c2,3);dot(X,Y,7,k.ink,k.card);
+  lab(F1,cy,X,Y,d1.toFixed(2),k.c1);lab(X,Y,F2,cy,d2.toFixed(2),k.c2);
+  const Lb=Math.min(W-100,520),x0=(W-Lb)/2,by=G[1]+G[3]+30,k1=Lb/(2*a);
+  tx('PF\u2081 + PF\u2082 = '+(d1+d2).toFixed(2)+' = 2a, always the same',W/2,by-20,k.ink,13);
+  c.globalAlpha=.85;c.fillStyle=k.c1;c.fillRect(x0,by-8,d1*k1,16);c.fillStyle=k.c2;c.fillRect(x0+d1*k1,by-8,d2*k1,16);c.globalAlpha=1;
+  tx('PF\u2081 = '+d1.toFixed(2),x0,by+22,k.c1,12,'left');tx('PF\u2082 = '+d2.toFixed(2),x0+Lb,by+22,k.c2,12,'right');
+  return 'pencil P at '+Math.round(th*180/Math.PI)+'\u00b0 \u00b7 PF\u2081 = <span class="k1">'+d1.toFixed(2)+'</span> + PF\u2082 = <span class="k2">'+d2.toFixed(2)+'</span> = <b>'+(d1+d2).toFixed(2)+'</b> = 2a, the string length \u00b7 foci at \u00b1'+cf+', a = '+a+', b = '+b.toFixed(2);
+ }
+ const e=cf/a,type=e<.02?'a circle':e<.65?'an ellipse':'a long, flat ellipse',B=[cx,PY(b)];
+ ln(cx,cy,F2,cy,k.c1,3.5);ln(cx,cy,cx,B[1],k.c3,3.5);ln(F2,cy,cx,B[1],k.c2,3.5);ln(F1,cy,cx,B[1],k.c2,1.5,[4,4]);
+ c.beginPath();c.moveTo(cx+9,cy);c.lineTo(cx+9,cy-9);c.lineTo(cx,cy-9);c.strokeStyle=k.ink;c.lineWidth=1.5;c.stroke();
+ dot(cx,B[1],7,k.ink,k.card);
+ if(cf>.25)tx('c = '+cf.toFixed(2),(cx+F2)/2,cy+16,k.c1,12);tx('b = '+b.toFixed(2),cx-9,(cy+B[1])/2,k.c3,12,'right');tx('a = 4',(cx+F2)/2+16,(cy+B[1])/2-9,k.c2,12,'left');
+ tx(type,G[0]+G[2]-4,G[1]+12,e<.02?k.c3:k.ink,wide?18:14,'right');tx('e = c \u00f7 a = '+e.toFixed(2),G[0]+G[2]-4,G[1]+32,k.muted,12,'right');
+ tx('b\u00b2 + c\u00b2 = a\u00b2:   '+(b*b).toFixed(2)+' + '+(cf*cf).toFixed(2)+' = 16',W/2,G[1]+G[3]+30,k.ink,wide?15:13);
+ return 'foci at \u00b1'+cf.toFixed(2)+' \u00b7 string length 2a = 8 \u00b7 b = \u221a(a\u00b2 \u2212 c\u00b2) = <span class="k3">'+b.toFixed(2)+'</span> \u00b7 eccentricity e = c \u00f7 a = <b>'+e.toFixed(2)+'</b> \u00b7 '+type;
+}
+
+/* Hyperbola: asymptotes, foci and the constant difference of distances */
+function hyper(k){
+ const wide=W>=600,sq=Math.sqrt,a=2,ph=T<.30?0:T<.70?1:2,u3=clamp((T-.72)/.26);
+ const b=ph<2?1.5:(u3<.35?lerp(1.5,.6,ss(u3/.35)):u3<.75?lerp(.6,3,ss((u3-.35)/.4)):lerp(3,1.5,ss((u3-.75)/.25)));
+ const cf=sq(a*a+b*b),G=[16,36,W-32,H-118],sc=Math.min(G[2]/12.4,G[3]/8.4),cx=G[0]+G[2]/2,cy=G[1]+G[3]/2,PX=q=>cx+q*sc,PY=v=>cy-v*sc;
+ tx(['Build it from a rectangle: a, b, then the foci','Every point: the two distances to the foci differ by 2a','Change b: the asymptotes tilt and the foci slide out'][ph],W/2,16,k.ink,wide?17:13);
+ const r1=ph>0?1:ss(clamp((T-.02)/.06)),r2=ph>0?1:ss(clamp((T-.08)/.06)),r3=ph>0?1:ss(clamp((T-.14)/.06)),r4=ph>0?1:ss(clamp((T-.20)/.04)),sm=(ph>0?1:ss(clamp((T-.24)/.06)))*1.75;
+ c.save();c.beginPath();c.rect(G[0],G[1],G[2],G[3]);c.clip();
+ ln(PX(-6.4),cy,PX(6.4),cy,k.line,1);ln(cx,PY(-4.3),cx,PY(4.3),k.line,1);
+ if(r1>0){c.beginPath();c.rect(PX(-a*r1),PY(b*r1),2*a*r1*sc,2*b*r1*sc);c.globalAlpha=.1;c.fillStyle=k.c1;c.fill();c.globalAlpha=1;c.strokeStyle=k.muted;c.lineWidth=1.8;c.stroke()}
+ if(r2>0){const L=6.4*r2,sl=b/a;ln(PX(-L),PY(-sl*L),PX(L),PY(sl*L),k.c2,2.5,[7,5]);ln(PX(-L),PY(sl*L),PX(L),PY(-sl*L),k.c2,2.5,[7,5])}
+ if(r3>0){c.beginPath();c.arc(cx,cy,cf*r3*sc,0,TAU);c.strokeStyle=k.c4;c.lineWidth=2;c.setLineDash([3,5]);c.stroke();c.setLineDash([])}
+ [1,-1].forEach(sg=>path(80,t=>{const s=-sm+2*sm*t;return[PX(sg*a*Math.cosh(s)),PY(b*Math.sinh(s))]},k.c3,3.5));
+ c.restore();
+ if(r1>.9){[[1,1],[1,-1],[-1,1],[-1,-1]].forEach(o=>dot(PX(o[0]*a),PY(o[1]*b),4,k.muted));tx('a = '+a,PX(a/2),cy+15,k.muted,11);tx('b = '+b.toFixed(2),PX(a)+8,PY(b/2),k.muted,11,'left')}
+ if(r4>0){c.globalAlpha=r4;[-1,1].forEach(sg=>{dot(PX(sg*cf),cy,7,k.c1,k.card);tx(sg<0?'F\u2081':'F\u2082',PX(sg*cf),cy+17,k.c1,12)});c.globalAlpha=1}
+ let P=null;
+ if(ph===1){const left=T>=.5,u=left?clamp((T-.5)/.2):clamp((T-.3)/.2),s=left?lerp(1.7,-1.7,ss(u)):lerp(-1.7,1.7,ss(u));P=[(left?-1:1)*a*Math.cosh(s),b*Math.sinh(s)]}else if(ph===2)P=[a*Math.cosh(1),b*Math.sinh(1)];
+ let da=0,d1=0,d2=0;
+ if(P){d1=Math.hypot(P[0]+cf,P[1]);d2=Math.hypot(P[0]-cf,P[1]);
+  ln(PX(-cf),cy,PX(P[0]),PY(P[1]),k.c1,3);ln(PX(P[0]),PY(P[1]),PX(cf),cy,k.c2,3);
+  const cc=Math.hypot(a,b),best=[[a,b],[a,-b]].map(d=>{const ux=d[0]/cc,uy=d[1]/cc,t=P[0]*ux+P[1]*uy,fx=t*ux,fy=t*uy;return{d:Math.hypot(P[0]-fx,P[1]-fy),fx:fx,fy:fy}}).sort((p,q)=>p.d-q.d)[0];
+  da=best.d;ln(PX(P[0]),PY(P[1]),PX(best.fx),PY(best.fy),k.c4,2.5);dot(PX(P[0]),PY(P[1]),7,k.ink,k.card);
+  const kb=(W-150)/10,by=G[1]+G[3]+20,lo=Math.min(d1,d2),rows=[[d1,k.c1,'PF\u2081',by],[d2,k.c2,'PF\u2082',by+24]];
+  rows.forEach(o=>{tx(o[2],44,o[3],o[1],13,'left');c.globalAlpha=.85;c.fillStyle=o[1];c.fillRect(74,o[3]-7,Math.min(o[0],lo)*kb,14);if(o[0]>lo+1e-9){c.fillStyle=k.c3;c.fillRect(74+lo*kb,o[3]-7,(o[0]-lo)*kb,14)}c.globalAlpha=1;tx(o[0].toFixed(2),74+o[0]*kb+8,o[3],o[1],12,'left');if(o[0]>lo+1e-9)tx('2a = '+(o[0]-lo).toFixed(2),74+(lo+(o[0]-lo)/2)*kb,o[3]-16,k.c3,11)})}
+ if(r4>.5)tx('c\u00b2 = a\u00b2 + b\u00b2:  4 + '+(b*b).toFixed(2)+' = '+(cf*cf).toFixed(2),G[0]+G[2]-4,G[1]+12,k.ink,wide?14:12,'right');
+ if(r4>.5)tx('e = c \u00f7 a = '+(cf/a).toFixed(2)+'   slope b \u00f7 a = '+(b/a).toFixed(2),G[0]+G[2]-4,G[1]+30,k.muted,12,'right');
+ if(ph===0){const cap=T<.08?'1. A rectangle with half-width a and half-height b':T<.14?'2. Its diagonals, extended forever, are the asymptotes':T<.24?'3. A circle through the corners meets the axis at the foci':'4. The two branches hug the asymptotes';tx(cap,W/2,G[1]+G[3]+26,k.ink,wide?14:12);return cap+'. Here a = 2, b = 1.5, so c = \u221a(a\u00b2 + b\u00b2) = 2.5.'}
+ return 'P = ('+f3(P[0])+', '+f3(P[1])+') \u00b7 PF\u2081 = <span class="k1">'+d1.toFixed(2)+'</span>, PF\u2082 = <span class="k2">'+d2.toFixed(2)+'</span> \u00b7 |PF\u2081 \u2212 PF\u2082| = <b>'+Math.abs(d1-d2).toFixed(2)+'</b> = 2a \u00b7 distance to the asymptote = <span style="color:var(--c4)">'+da.toFixed(2)+'</span> \u00b7 b = '+b.toFixed(2)+', c = '+cf.toFixed(2);
+}
+
+/* From a trig equation to a polar graph */
+const POL=[
+ {eq:'r = 1 + cos θ',f:t=>1+Math.cos(t),dom:2*Math.PI,name:'a cardioid'},
+ {eq:'r = 2 sin(3θ)',f:t=>2*Math.sin(3*t),dom:Math.PI,name:'a three-petal rose'},
+ {eq:'r = 1 + 2 cos θ',f:t=>1+2*Math.cos(t),dom:2*Math.PI,name:'a limaçon with an inner loop'}
+];
+function polar(k){
+ const wide=W>=600,i=Math.min(2,Math.floor(T*3)),u=T*3-i,cur=POL[i],p=clamp((u-.06)/.78),th=cur.dom*p,r=cur.f(th),F=cur.f,dom=cur.dom;
+ const Cr=wide?[44,70,W*.42,H-150]:[44,40,W-64,H*.2],Pr=wide?[W*.5,44,W*.48,H-70]:[16,H*.2+84,W-32,H-(H*.2+84)-26];
+ const ru=Math.min(Pr[2],Pr[3])/6.8,pcx=Pr[0]+Pr[2]/2,pcy=Pr[1]+Pr[3]/2,PXY=(t)=>[pcx+F(t)*Math.cos(t)*ru,pcy-F(t)*Math.sin(t)*ru];
+ const CX=q=>Cr[0]+q/dom*Cr[2],CY=v=>Cr[1]+Cr[3]-(v+1)/4.2*Cr[3];
+ tx(cur.eq+'   ('+cur.name+')',W/2,16,k.ink,wide?18:14);
+ tx('r against θ, like any ordinary graph',Cr[0],Cr[1]-10,k.muted,12,'left');tx('the same r, wrapped around the origin',Pr[0]+Pr[2]/2,Pr[1]-4,k.muted,12);
+ [-1,0,1,2,3].forEach(v=>{ln(Cr[0],CY(v),Cr[0]+Cr[2],CY(v),v===0?k.muted:k.line,v===0?1.5:1);tx(String(v),Cr[0]-6,CY(v),k.muted,10,'right')});
+ for(let q=0;q<=dom+1e-6;q+=Math.PI/2){ln(CX(q),Cr[1],CX(q),Cr[1]+Cr[3],k.line,1);const m=Math.round(q/(Math.PI/2));tx(m===0?'0':m===1?'π/2':m===2?'π':m===3?'3π/2':'2π',CX(q),Cr[1]+Cr[3]+13,k.muted,10)}
+ ln(Cr[0],Cr[1],Cr[0],Cr[1]+Cr[3],k.muted,1.5);
+ path(240,t=>[CX(dom*t),CY(F(dom*t))],k.line,2.5,[5,5]);
+ const N=Math.max(1,Math.ceil(p*240));for(let j=0;j<N;j++){const a=th*j/N,b=th*(j+1)/N;ln(CX(a),CY(F(a)),CX(b),CY(F(b)),F((a+b)/2)>=0?k.c3:k.c2,3.5)}
+ ln(CX(th),CY(0),CX(th),CY(r),k.muted,1.5,[4,4]);dot(CX(th),CY(r),6.5,r>=0?k.c3:k.c2,k.card);
+ [1,2,3].forEach(v=>{circ(pcx,pcy,v*ru,k.line,1);tx(String(v),pcx+v*ru+3,pcy+9,k.muted,9,'left')});
+ for(let d=0;d<360;d+=30){const a=d*Math.PI/180;ln(pcx,pcy,pcx+3.2*ru*Math.cos(a),pcy-3.2*ru*Math.sin(a),k.line,1);tx(d+'°',pcx+3.65*ru*Math.cos(a),pcy-3.65*ru*Math.sin(a),k.muted,wide?10:9)}
+ path(360,t=>PXY(dom*t),k.line,2.5,[5,5]);
+ for(let j=0;j<N;j++){const a=th*j/N,b=th*(j+1)/N,A=PXY(a),B=PXY(b);ln(A[0],A[1],B[0],B[1],F((a+b)/2)>=0?k.c3:k.c2,3.5)}
+ ln(pcx,pcy,pcx+3.2*ru*Math.cos(th),pcy-3.2*ru*Math.sin(th),k.muted,1.5,[5,5]);
+ const P=PXY(th);ln(pcx,pcy,P[0],P[1],r>=0?k.c1:k.c2,3.5);
+ c.beginPath();c.arc(pcx,pcy,.6*ru,0,-th,true);c.strokeStyle=k.c4;c.lineWidth=2.5;c.stroke();
+ dot(pcx,pcy,3.5,k.ink);dot(P[0],P[1],7,k.ink,k.card);
+ if(i===1)tx('θ only has to reach π: after that the rose just repeats',W/2,H-8,k.muted,11);
+ const x=r*Math.cos(th),y=r*Math.sin(th);
+ return cur.eq+' · θ = '+Math.round(th*180/Math.PI)+'° · r = <span class="'+(r>=0?'k3':'k2')+'">'+f3(r)+'</span>'+(r<-.001?' (negative, so the point is plotted on the opposite side of the origin)':'')+' · (x, y) = (r cos θ, r sin θ) = ('+f3(x)+', '+f3(y)+')';
+}
+
+const S=[
+ {t:'Pythagorean theorem',f:'a² + b² = c²',d:'Four identical right triangles fill a square of side a + b. Rearrange them and the leftover space changes from one square (c²) into two squares (a² and b²). The triangles never change size, so the areas must match.',dur:10,c:['Geometry','Trigonometry'],run:pyth},
+ {t:'Pythagorean water demo',f:'a² + b² = c²',d:'The board flips over and gravity does the work. With the large square below, the water from both small squares pours into it and fills it exactly. Flip the board back and the large square empties into the two small ones. Use the timeline to pause on any moment.',dur:14,c:['Geometry'],run:waterSpin},
+ {t:'Cycloid',f:'x = r(θ − sin θ),  y = r(1 − cos θ)',d:'The path of a point on the rim of a wheel rolling along a line. One arch is 2πr wide and 2r tall, its length is exactly 8r, and the area beneath it is 3πr², three times the area of the wheel.',dur:8,c:['Geometry','Calculus'],run:cyc},
+ {t:'Sine wave',f:'y = sin θ',d:'A point moving around a circle at constant speed rises and falls in a smooth rhythm. Plot its height against the angle and you get the sine wave. One full turn, 2π radians, makes one full wave.',dur:8,c:['Trigonometry'],run:sine},
+ {t:'Unit circle',f:'cos² θ + sin² θ = 1',d:'On a circle of radius 1, the point at angle θ sits at (cos θ, sin θ). The tangent line at (1, 0) meets the extended radius at height tan θ. Drag the point or use the timeline to explore any angle.',dur:14,c:['Trigonometry'],run:unit},
+ {t:'Calculating π with polygons',f:'n·sin(π/n) < π < n·tan(π/n)',d:'Archimedes trapped the circle between two polygons. The inside polygon is shorter than the circle and the outside one is longer, so π sits between their half-perimeters. Each time the number of sides doubles, the gap shrinks. With 96 sides he proved that 3 10/71 < π < 3 1/7.',dur:16,c:['Geometry','Pi'],run:archi},
+ {t:'Monte Carlo estimate of π',f:'π ≈ 4 × (darts in circle) ÷ (all darts)',d:'Throw random darts at a square with a circle inside it. The circle covers π/4 of the square, so four times the fraction of darts that land inside the circle estimates π. The estimate wobbles at first and slowly settles as more darts land.',dur:14,c:['Probability','Pi'],run:mc},
+ {t:'The derivative of eˣ',f:'d/dx eˣ = eˣ',d:'The curve y = eˣ has a special property: at every point, the slope of the tangent line equals the height of the curve. First shrink h and the secant slope (eʰ − 1) ÷ h settles at 1 when x = 0. Then slide along the curve. The slope you measure always matches the height, so the slope curve is the same curve.',dur:18,c:['Calculus'],run:expd},
+ {t:'The fundamental theorem of calculus',f:'d/dx ∫ f(t) dt = f(x)',d:'Slide x along the curve and shade the area under f from 0 to x. Call that area A(x). Adding a thin slice of width Δx adds about f(x) × Δx of area, so A grows at the rate f(x): the slope of A always equals the height of f. That is the first half of the theorem. The second half follows: the total area from a to b is A(b) − A(a).',dur:18,c:['Calculus'],run:ftc},
+ {t:'Riemann sums',f:'Σ f(x)·Δx → ∫ f(x) dx',d:'Estimate the area under a curve by filling it with thin rectangles. The blue rectangles use the left edge of each slice and sit under the curve, so they underestimate the area. The pink outlines use the right edge and overshoot. Each time the number of rectangles doubles, the two sums squeeze closer to the exact area, 22/3. In the limit, that is the definite integral.',dur:16,c:['Calculus'],run:riem},
+ {t:'f, f′ and f″ compared',f:'f′(x) = (x + 1.5)(x + 0.5)(x − 1)²',d:'The top graph is f. The middle graph is its slope, f′, and the bottom graph is how fast that slope changes, f″. Colors tell the story: where f′ is positive, f rises (teal), and where f′ is negative, f falls (pink). This curve peaks, dips into a valley, climbs, then goes almost flat at x = 1 before rising again. There f′ touches zero but never crosses it, so f levels off without turning around. Where f″ crosses zero, f changes how it bends.',dur:18,tall:1.25,c:['Calculus'],run:deriv3},
+ {t:'The derivative of sine is cosine',f:'d/dx sin x = cos x',d:'Watch the tangent line slide along the sine wave. Its slope is largest and positive where the wave climbs fastest, zero at every peak and valley, and negative where the wave falls. Plot those slopes and you get the cosine curve. Another way to see it: a point moving around a circle has height sin x, and how fast that height changes is the vertical part of its velocity, which is cos x.',dur:16,c:['Calculus','Trigonometry'],run:dsin},
+ {t:'Slope fields',f:'dy/dx = x − y',d:'A differential equation such as dy/dx = x − y gives the slope of a solution curve at every point, even before you know the curve. Each little line is that slope: teal means rising and pink means falling. Now choose a starting point and follow the lines. The solution is a curve that stays tangent to the field. Different starting points give different curves, but here they all settle onto one straight line, y = x − 1.',dur:20,c:['Calculus','Differential equations'],run:slopef},
+ {t:'Related rates: the sliding ladder',f:'x² + y² = 10²  →  dy/dt = −(x ÷ y) × dx/dt',d:'A 10-foot ladder leans against a wall while its bottom slides away at a steady 2 ft/s. The Pythagorean theorem links the two distances: x² + y² = 10². Differentiating both sides with respect to time gives 2x(dx/dt) + 2y(dy/dt) = 0, so the top moves at dy/dt = −(x ÷ y)(dx/dt). At first the top barely moves. Then it plunges faster and faster, matches the bottom\u2019s speed when x = y, and speeds off without limit as x approaches 10.',dur:14,c:['Calculus'],run:ladder},
+ {t:'The tangent line problem',f:'f′(x) = lim [f(x + h) − f(x)] ÷ h, as h → 0',d:'How do you find the slope of a curve at a single point? One point is not enough to draw a line, so pick a second point Q on the curve and draw the secant line through P and Q. Slide Q toward P and the secant swings toward a limiting position: the tangent line. For f(x) = x²/2 at x = 1.5 the secant slope is 1.5 + h/2. Coming from the right, h shrinks through 2, 1, 0.5 and so on, and the slopes drop toward 1.5. Coming from the left, they climb toward 1.5. Both sides agree, so the tangent slope is exactly 1.5.',dur:18,c:['Calculus'],run:tangent},
+ {t:'The mean value theorem',f:'f′(c) = [f(b) − f(a)] ÷ (b − a)',d:'Draw the secant line from (a, f(a)) to (b, f(b)). Its slope m is the average rate of change of f over the whole interval. The mean value theorem says that somewhere between a and b the tangent line must have exactly that slope, so it is parallel to the secant. Slide the tangent along the curve and watch for the moment it turns green. For this curve it happens twice, at c₁ ≈ 0.634 and c₂ ≈ 2.366. The bottom graph shows why: f′ starts and ends above m but dips below it in between, so it has to cross m.',dur:20,c:['Calculus'],run:mvt},
+ {t:'The intermediate value theorem',f:'f continuous, f(a) < N < f(b)  →  f(c) = N for some c',d:'If f is continuous on [a, b], it takes every value between f(a) and f(b). Here f(a) = −2 is below N = 1 and f(b) = 4.05 is above it. A continuous curve has no gaps or jumps, so as the pencil slides from a to b it has to cross the line y = N at least once. This curve crosses it three times. The same idea gives the bisection method: test the midpoint, keep whichever half still has one end below N and the other above, and repeat. Each halving traps a crossing in a smaller bracket.',dur:22,c:['Calculus'],run:ivt},
+ {t:'The extreme value theorem',f:'f continuous on [a, b]  →  f has an absolute max and min',d:'The extreme value theorem says that a continuous function on a closed interval [a, b] always has a highest and a lowest value. Lower a ceiling until it just touches the curve, and raise a floor the same way: that finds the absolute max and min. In the first example the maximum sits at an endpoint and the minimum sits inside. Then see why both conditions matter. On an open interval the curve can climb toward a value it never reaches. And if the function is not continuous, it can shoot up without limit, so no ceiling is high enough.',dur:24,c:['Calculus'],run:evt},
+ {t:'The chain rule',f:'dy/dx = (dy/du) × (du/dx)',d:'The chain rule handles a function inside a function. Here y = sin u and u = x²/2, so y = sin(x²/2). A small change in x changes u by du/dx = x times as much, and that change in u changes y by dy/du = cos u times as much. The rates multiply: dy/dx = cos(u) × x. Watch the three tangent slopes as x moves. The teal slope on the composite curve is always the product of the blue slope on the inner function and the pink slope on the outer function. When either factor is zero, the whole slope is zero.',dur:20,tall:w=>w<560?1.45:1,c:['Calculus'],run:chain},
+ {t:'Usain Bolt: actual speed vs average speed',f:'average speed = distance ÷ time = 100 m ÷ 9.58 s = 10.44 m/s',d:'In his 9.58 s world record in Berlin in 2009, Usain Bolt’s average speed was 100 m ÷ 9.58 s = 10.44 m/s. But he never ran at that speed the whole way. A runner who moves at that steady pace from the gun leads early, because Bolt starts from rest and has to accelerate. Then Bolt passes 10.44 m/s, peaks at about 12.4 m/s, and catches the steady runner exactly at the finish line. The speed graph shows why: the area under the curve is the distance, so the pink area below the average line must equal the teal area above it. The speed curve is estimated from the official 10 m split times, and the race is slowed down about 1.5 times.',dur:16,tall:w=>w<560?1.2:1,c:['Calculus','Real-world'],run:bolt100},
+ {t:'Taylor polynomials hugging a curve',f:'sin x = x − x³/3! + x⁵/5! − x⁷/7! + …',d:'A Taylor polynomial uses only the derivatives of a function at one point, here x = 0, to build a polynomial that copies the function. Each extra term matches one more derivative, so the polynomial bends to hug the curve over a wider stretch around the center. Watch the pink polynomials for sin x grow term by term: x, then x − x³/3!, then add x⁵/5!, and so on. The teal band shows where the polynomial stays within 0.05 of the true curve. It keeps widening, but far from the center the polynomial always flies away, because a polynomial cannot oscillate forever. The second half does the same for cos x.',dur:30,c:['Calculus','Series'],run:taylor},
+ {t:'Related rates: filling a cone',f:'V = (π/12)h³  →  dh/dt = 80 ÷ (πh²)',d:'Water is poured into an inverted cone, 12 ft tall and 12 ft across the top, at a steady 20 ft³/min. The radius is always half the height, so the volume is V = (1/3)πr²h = (π/12)h³. Differentiating with respect to time gives dV/dt = (π/4)h² × dh/dt, so the level rises at dh/dt = 80 ÷ (πh²). The inflow never changes, but the level rises more and more slowly: each extra foot of height needs a wider slice of water, so the same flow fills it more slowly.',dur:20,tall:w=>w<560?1.45:1,c:['Calculus','Geometry'],run:cone},
+ {t:'Related rates: lamp post and shadow',f:'(x + s) ÷ 15 = s ÷ 6   →   ds/dt = (2/3) dx/dt',d:'A 6 ft tall person walks away from a 15 ft lamp post at 5 ft/s. The light ray that just grazes the top of the person\u2019s head makes two similar triangles, so (x + s) ÷ 15 = s ÷ 6, which simplifies to s = (2/3)x. Taking the derivative with respect to time, the shadow grows at ds/dt = (2/3)(5) = 3.33 ft/s. The tip of the shadow sits at x + s = (5/3)x from the post, so it moves at (5/3)(5) = 8.33 ft/s, faster than the person. In this problem every rate stays constant, so the graph shows straight lines.',dur:16,tall:w=>w<560?1.4:1,c:['Calculus','Geometry'],run:lamp},
+ {t:'The parabola: conic section, focus and directrix',f:'PF = PD   ·   y = x² ÷ (4p)',d:'A parabola is what you get when you slice a cone with a plane that is exactly parallel to the cone\u2019s side. Start with a flat cut, which is a circle. Tilt the plane and the cut becomes an ellipse that stretches longer, and at the exact tilt of the cone\u2019s side it opens up into a parabola. Tilt further and it becomes a hyperbola. The same curve has a second description: it is every point that is the same distance from a fixed point, the focus, as from a fixed line, the directrix. Slide P along the curve and the two distances stay equal. The vertex sits exactly halfway between the focus and the directrix, so when the focus moves, the directrix moves with it.',dur:30,tall:w=>w<560?1.25:1,c:['Geometry','Conic sections'],run:parab},
+ {t:'The ellipse and its foci',f:'PF\u2081 + PF\u2082 = 2a   \u00b7   b\u00b2 + c\u00b2 = a\u00b2',d:'An ellipse is what you draw with two pins and a loop of string. Push the pins into the paper at the two foci, hook the string around them, pull it taut with a pencil and trace all the way around. The pencil always makes two string segments, PF\u2081 and PF\u2082, and wherever it is their sum is the constant string length, 2a. That is the definition: an ellipse is every point whose distances to the two foci add up to the same number. Now keep the string the same length and slide the pins. With the foci together at the center you get a circle, and as they move apart the ellipse flattens. The center, a focus and the top of the ellipse always form a right triangle with b\u00b2 + c\u00b2 = a\u00b2, so the eccentricity e = c \u00f7 a measures how far the ellipse is from a circle.',dur:28,c:['Geometry','Conic sections'],run:ellipseScene},
+ {t:'The hyperbola: asymptotes and foci',f:'|PF\u2081 \u2212 PF\u2082| = 2a   \u00b7   c\u00b2 = a\u00b2 + b\u00b2',d:'A hyperbola x\u00b2/a\u00b2 \u2212 y\u00b2/b\u00b2 = 1 is built around a rectangle with half-width a and half-height b. The rectangle\u2019s diagonals, extended in both directions, are the asymptotes, the lines the two branches approach forever without touching. A circle through the rectangle\u2019s corners cuts the x-axis at the foci, so the distance from the center to a focus is c, with c\u00b2 = a\u00b2 + b\u00b2. The foci are what define the curve: for every point on either branch, the distances to the two foci differ by exactly 2a. The pink line from P to the nearest asymptote shrinks as P moves out. At the end, b changes: the asymptotes tilt, the foci slide away from the center and the eccentricity e = c \u00f7 a grows as the branches open wider.',dur:32,c:['Geometry','Conic sections'],run:hyper},
+ {t:'From a trig equation to a polar graph',f:'(x, y) = (r cos θ, r sin θ)',d:'A polar equation gives a distance r for every angle θ. To graph r = 1 + cos θ, turn a ray to the angle θ, measure r along it and mark the point. The left graph plots r against θ like any ordinary function, and the right graph wraps the same information around the origin. Where r is large the point is far out, and where r reaches 0 the curve touches the center. Where r turns negative, shown in pink, the point is plotted on the opposite side of the origin. That is how the limaçon gets its inner loop and how the rose gets its other petals. The tracing point always lands at (x, y) = (r cos θ, r sin θ).',dur:30,tall:w=>w<560?1.35:1,c:['Trigonometry','Geometry'],run:polar}
+];
+
+const tabs=document.querySelectorAll('#nav button');
+function setPlay(v){playing=v;$('pp').textContent=v?'❚❚ Pause':'▶ Play'}
+function select(i){cur=i;fit();T=0;lastRead='';setPlay(!reduce);tabs.forEach((b,j)=>b.setAttribute('aria-selected',j===i));$('ti').textContent=S[i].t;$('tg').textContent=S[i].c.join(' · ');$('fo').textContent=S[i].f;$('de').textContent=S[i].d;cv.className=S[i].run===unit?'drag':'';cv.setAttribute('aria-label',S[i].t+' animation')}
+const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+function draw(){
+ if(!W)return;
+ c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,W,H);c.lineCap='round';c.lineJoin='round';
+ const k=colors();grid(k);
+ const h=S[cur].run(k);
+ if(h!==lastRead){$('rd').innerHTML=h;lastRead=h}
+ $('tl').value=Math.round(T*1000);
+}
+function frame(ts){const d=Math.min((ts-last)/1000||0,.1);last=ts;if(playing)T=(T+d*speed/S[cur].dur)%1;draw();requestAnimationFrame(frame)}
+
+tabs.forEach((b,i)=>b.onclick=()=>select(i));
+
+/* category chips + search */
+let cat='All',query='';
+function filt(){
+ let n=0;
+ tabs.forEach((b,i)=>{const s=S[i],ok=(cat==='All'||s.c.indexOf(cat)>-1)&&(!query||(s.t+' '+s.f+' '+s.c.join(' ')).toLowerCase().indexOf(query)>-1);b.hidden=!ok;if(ok)n++});
+ $('none').hidden=n>0;
+ document.querySelectorAll('#cats button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===cat))
+}
+['All'].concat(S.reduce((a,s)=>{s.c.forEach(x=>{if(a.indexOf(x)<0)a.push(x)});return a},[])).forEach(name=>{
+ const b=document.createElement('button'),n=name==='All'?S.length:S.filter(s=>s.c.indexOf(name)>-1).length;
+ b.dataset.c=name;b.innerHTML=name+'<span>'+n+'</span>';b.onclick=()=>{cat=name;filt()};$('cats').appendChild(b)
+});
+$('q').oninput=e=>{query=e.target.value.trim().toLowerCase();filt()};
+filt();
+$('pp').onclick=()=>setPlay(!playing);
+$('rs').onclick=()=>{T=0;setPlay(true)};
+$('tl').oninput=e=>{T=e.target.value/1000;setPlay(false)};
+$('sp').oninput=e=>{speed=+e.target.value;$('spv').textContent=speed+'×'};
+const ang=e=>{const r=cv.getBoundingClientRect();T=((Math.atan2(H/2-(e.clientY-r.top),e.clientX-r.left-W/2)/TAU)%1+1)%1};
+cv.onpointerdown=e=>{if(S[cur].run!==unit)return;cv.setPointerCapture(e.pointerId);drag=true;setPlay(false);ang(e)};
+cv.onpointermove=e=>{if(drag)ang(e)};
+cv.onpointerup=cv.onpointercancel=()=>{drag=false};
+
+let lw=0;new ResizeObserver(()=>{const w=cv.parentElement.clientWidth;if(w!==lw){lw=w;fit()}}).observe(cv.parentElement);
+fit();select(0);requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
