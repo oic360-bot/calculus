@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>f, f′, f″ Explorer</title>
+<style>
+:root{color-scheme:light;--bg:#e9eef5;--card:#f7f9fc;--well:#eceff6;--ink:#161b28;--muted:#5d6980;--line:#d5dce8;--blue:#2563eb;--pink:#e11d74;--teal:#0f9d8a;--violet:#6d4aff;--on:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0d121c;--card:#151c2a;--well:#1c2638;--ink:#e9eef8;--muted:#98a5bd;--line:#2a3750;--blue:#6e9eff;--pink:#ff6fa8;--teal:#2fd3bd;--violet:#a592ff;--on:#0b1020}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0d121c;--card:#151c2a;--well:#1c2638;--ink:#e9eef8;--muted:#98a5bd;--line:#2a3750;--blue:#6e9eff;--pink:#ff6fa8;--teal:#2fd3bd;--violet:#a592ff;--on:#0b1020}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:22px 16px 36px}
+h1{font:700 clamp(28px,6vw,38px)/1.1 "Avenir Next","Segoe UI Variable Display","Segoe UI",system-ui,sans-serif;letter-spacing:-.03em;margin:0 0 4px}
+.sub{color:var(--muted);margin:0 0 16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.top{padding:16px 18px 12px;background:var(--well);border-bottom:1px solid var(--line)}
+.inrow{display:flex;align-items:center;gap:12px}
+.inrow label{font:600 17px ui-monospace,Menlo,Consolas,monospace;color:var(--muted);white-space:nowrap}
+#fx{flex:1;min-width:0;min-height:48px;padding:0 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:600 19px ui-monospace,Menlo,Consolas,monospace}
+#fx.bad{border-color:var(--pink)}
+.err{margin:8px 2px 0;color:var(--pink);font-size:14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chips button{min-height:36px;padding:0 12px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:600 13.5px ui-monospace,Menlo,Consolas,monospace;cursor:pointer}
+.chips button:hover{border-color:var(--blue)}
+.forms{padding:12px 18px;font:15px/1.7 ui-monospace,Menlo,Consolas,monospace;border-bottom:1px solid var(--line);overflow-x:auto;white-space:nowrap}
+.forms b{font-weight:700}
+.chart{position:relative}
+canvas{display:block;width:100%;touch-action:pan-y}
+.play{position:absolute;top:8px;right:10px;width:44px;height:44px;border-radius:50%;border:0;background:var(--well);color:var(--ink);font-size:16px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.panel{padding:14px 18px 16px;border-top:1px solid var(--line);background:var(--well);display:grid;grid-template-columns:1fr 1fr;gap:12px 18px}
+.panel .wide{grid-column:1/-1}
+label.l{display:block;font-size:14px;color:var(--muted);margin-bottom:4px}
+.sl{display:flex;align-items:center;gap:12px}
+input[type=range]{flex:1;min-height:44px;accent-color:var(--blue);margin:0}
+.val{min-width:52px;text-align:right;font-weight:600;font-variant-numeric:tabular-nums}
+.num{width:100%;min-height:44px;padding:0 12px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font:inherit}
+.sum{padding:12px 18px;font-size:14.5px;border-top:1px solid var(--line)}
+.sum b{font-weight:650}
+.read{padding:12px 18px 16px;font:14px/1.6 ui-monospace,Menlo,Consolas,monospace;border-top:1px solid var(--line);min-height:4.2em}
+.k1{color:var(--blue)}.k2{color:var(--pink)}.k3{color:var(--teal)}.k4{color:var(--violet)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.note{color:var(--muted);font-size:13.5px;margin:12px 2px 0}
+@media (max-width:560px){.panel{grid-template-columns:1fr 1fr}#fx{font-size:17px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>f, f′, f″ Explorer</h1>
+<p class="sub">Type any function of x. See its slope graph and its bend graph, with the derivatives worked out for you.</p>
+<div class="card">
+<div class="top">
+<div class="inrow"><label for="fx">f(x) =</label><input id="fx" value="x^3 - 3x" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Function of x"></div>
+<p class="err" id="err" hidden></p>
+<div class="chips" id="chips"></div>
+</div>
+<div class="forms" id="forms"></div>
+<div class="chart"><canvas id="cv" role="img" aria-label="Graphs of f, f prime and f double prime"></canvas><button class="play" id="play" aria-label="Play">&#9654;</button></div>
+<div class="panel">
+<div class="wide"><label class="l" for="s1">Point x</label><div class="sl"><input type="range" id="s1"><span class="val" id="v1"></span></div></div>
+<div><label class="l" for="xl">x from</label><input class="num" type="number" id="xl" step="any"></div>
+<div><label class="l" for="xr">x to</label><input class="num" type="number" id="xr" step="any"></div>
+</div>
+<div class="sum" id="sum"></div>
+<div class="read" id="rd"></div>
+</div>
+<p class="note">You can write 2x, x^2, (x+1)(x-1), sin(x), cos(x), tan(x), e^x, ln(x), sqrt(x), abs(x), 1/x and pi. Teal means rising, pink means falling.</p>
+</div>
+<noscript><p style="padding:16px">This tool needs JavaScript. Open the file in a web browser.</p></noscript>
+<script>
+(()=>{
+/*PARSER-START*/
+const TAU=Math.PI*2;
+const FN1={sin:Math.sin,cos:Math.cos,tan:Math.tan,asin:Math.asin,acos:Math.acos,atan:Math.atan,sinh:Math.sinh,cosh:Math.cosh,tanh:Math.tanh,exp:Math.exp,ln:Math.log,log:Math.log10,sqrt:Math.sqrt,cbrt:Math.cbrt,abs:Math.abs,sign:Math.sign};
+const NAMES=['asin','acos','atan','sinh','cosh','tanh','sqrt','cbrt','sign','sin','cos','tan','exp','abs','log','ln','pi','e','x'];
+const num=v=>({t:'n',v:v}),X={t:'x'},CE={t:'c',n:'e',v:Math.E},CP={t:'c',n:'pi',v:Math.PI};
+const isN=(a,v)=>a.t==='n'&&(v===undefined||a.v===v);
+const eq=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+const has=n=>n.t==='x'||(n.t==='neg'&&has(n.a))||(n.t==='fn'&&has(n.a))||(n.t==='b'&&(has(n.a)||has(n.b)));
+function N(a){if(isN(a))return num(-a.v);if(a.t==='neg')return a.a;return{t:'neg',a:a}}
+function A(a,b){if(isN(a,0))return b;if(isN(b,0))return a;if(isN(a)&&isN(b))return num(a.v+b.v);if(b.t==='neg')return S(a,b.a);return{t:'b',op:'+',a:a,b:b}}
+function S(a,b){if(eq(a,b))return num(0);if(isN(b,0))return a;if(isN(a,0))return N(b);if(isN(a)&&isN(b))return num(a.v-b.v);if(b.t==='neg')return A(a,b.a);return{t:'b',op:'-',a:a,b:b}}
+function M(a,b){if(isN(a,0)||isN(b,0))return num(0);if(isN(a,1))return b;if(isN(b,1))return a;if(isN(a,-1))return N(b);if(isN(b,-1))return N(a);if(isN(a)&&isN(b))return num(a.v*b.v);if(a.t==='neg')return N(M(a.a,b));if(a.t==='b'&&a.op==='/')return D(M(a.a,b),a.b);if(b.t==='b'&&b.op==='/')return D(M(a,b.a),b.b);if(b.t==='neg')return N(M(a,b.a));if(isN(b)&&!isN(a))return M(b,a);if(isN(a)&&b.t==='b'&&b.op==='*'&&isN(b.a))return M(num(a.v*b.a.v),b.b);return{t:'b',op:'*',a:a,b:b}}
+function D(a,b){if(isN(a,0))return num(0);if(eq(a,b))return num(1);if(isN(a)&&a.v<0)return N(D(num(-a.v),b));if(isN(b,1))return a;if(isN(a)&&isN(b)&&b.v!==0)return num(a.v/b.v);if(a.t==='neg')return N(D(a.a,b));if(b.t==='neg')return N(D(a,b.a));return{t:'b',op:'/',a:a,b:b}}
+function P(a,b){if(isN(b,0))return num(1);if(isN(b,1))return a;if(a.t==='b'&&a.op==='^'&&isN(a.b)&&isN(b))return P(a.a,num(a.b.v*b.v));if(isN(a)&&isN(b))return num(Math.pow(a.v,b.v));return{t:'b',op:'^',a:a,b:b}}
+function F(n,a){if(n==='ln'&&a.t==='c'&&a.n==='e')return num(1);return{t:'fn',n:n,a:a}}
+function tokenize(s){
+ s=s.replace(/\u2212/g,'-').replace(/[\u00d7\u00b7]/g,'*').replace(/\u00f7/g,'/').replace(/\u03c0/g,'pi').replace(/\u00b2/g,'^2').replace(/\u00b3/g,'^3').replace(/\*\*/g,'^').replace(/\s+/g,'');
+ const out=[];let i=0;
+ while(i<s.length){const ch=s[i];
+  if(/[0-9.]/.test(ch)){let j=i;while(j<s.length&&/[0-9.]/.test(s[j]))j++;const raw=s.slice(i,j),v=parseFloat(raw);if(!/^(\d+\.?\d*|\.\d+)$/.test(raw))throw Error('"'+raw+'" is not a number');out.push({k:'n',v:v});i=j}
+  else if(/[a-zA-Z]/.test(ch)){let j=i;while(j<s.length&&/[a-zA-Z]/.test(s[j]))j++;let w=s.slice(i,j).toLowerCase();
+   while(w.length){const m=NAMES.find(n=>w.indexOf(n)===0);if(!m)throw Error('I do not know the name "'+w+'"');out.push({k:'i',v:m});w=w.slice(m.length)}i=j}
+  else if('+-*/^()'.indexOf(ch)>=0){out.push({k:'o',v:ch});i++}
+  else throw Error('I did not expect "'+ch+'"')}
+ return out}
+function parse(str){
+ const tk=tokenize(str);let p=0;
+ const isO=v=>tk[p]&&tk[p].k==='o'&&tk[p].v===v,starts=()=>{const t=tk[p];return t&&(t.k==='n'||t.k==='i'||(t.k==='o'&&t.v==='('))};
+ function add(){let l=mul();while(isO('+')||isO('-')){const o=tk[p++].v,r=mul();l=o==='+'?A(l,r):S(l,r)}return l}
+ function mul(){let l=un();for(;;){if(isO('*')){p++;l=M(l,un())}else if(isO('/')){p++;l=D(l,un())}else if(starts()){l=M(l,pw())}else break}return l}
+ function un(){if(isO('-')){p++;return N(un())}if(isO('+')){p++;return un()}return pw()}
+ function pw(){const b=prim();if(isO('^')){p++;return P(b,un())}return b}
+ function prim(){const t=tk[p++];if(!t)throw Error('the expression ends too soon');
+  if(t.k==='n')return num(t.v);
+  if(t.k==='o'&&t.v==='('){const e=add();if(!isO(')'))throw Error('a ")" is missing');p++;return e}
+  if(t.k==='i'){if(t.v==='x')return X;if(t.v==='pi')return CP;if(t.v==='e')return CE;
+   if(FN1[t.v]){if(!isO('('))throw Error('write '+t.v+'( ... ) with parentheses');p++;const e=add();if(!isO(')'))throw Error('a ")" is missing');p++;return F(t.v,e)}}
+  throw Error('I did not expect "'+t.v+'"')}
+ if(!tk.length)throw Error('type a function of x');
+ const r=add();if(p<tk.length)throw Error('I did not expect "'+tk[p].v+'"');return r}
+function compile(n){switch(n.t){case'n':case'c':{const v=n.v;return()=>v}case'x':return x=>x;case'neg':{const f=compile(n.a);return x=>-f(x)}
+ case'fn':{const f=compile(n.a),h=FN1[n.n];return x=>h(f(x))}
+ default:{const f=compile(n.a),g=compile(n.b);switch(n.op){case'+':return x=>f(x)+g(x);case'-':return x=>f(x)-g(x);case'*':return x=>f(x)*g(x);case'/':return x=>f(x)/g(x);default:return x=>Math.pow(f(x),g(x))}}}}
+function diff(n){
+ switch(n.t){case'n':case'c':return num(0);case'x':return num(1);case'neg':return N(diff(n.a));
+ case'b':{const a=n.a,b=n.b,da=diff(a),db=diff(b);
+  switch(n.op){case'+':return A(da,db);case'-':return S(da,db);case'*':return A(M(da,b),M(a,db));
+   case'/':return D(S(M(da,b),M(a,db)),P(b,num(2)));
+   default:if(!has(b))return M(M(b,P(a,isN(b)?num(b.v-1):S(b,num(1)))),da);
+    if(!has(a))return M(M(n,F('ln',a)),db);
+    return M(n,A(M(db,F('ln',a)),D(M(b,da),a)))}}
+ case'fn':{const u=n.a,du=diff(u);let o;
+  switch(n.n){case'sin':o=F('cos',u);break;case'cos':o=N(F('sin',u));break;case'tan':o=D(num(1),P(F('cos',u),num(2)));break;
+   case'asin':o=D(num(1),F('sqrt',S(num(1),P(u,num(2)))));break;case'acos':o=N(D(num(1),F('sqrt',S(num(1),P(u,num(2))))));break;
+   case'atan':o=D(num(1),A(num(1),P(u,num(2))));break;case'sinh':o=F('cosh',u);break;case'cosh':o=F('sinh',u);break;
+   case'tanh':o=D(num(1),P(F('cosh',u),num(2)));break;case'exp':o=n;break;case'ln':o=D(num(1),u);break;
+   case'log':o=D(num(1),M(u,num(Math.LN10)));break;case'sqrt':o=D(num(1),M(num(2),n));break;
+   case'cbrt':o=D(num(1),M(num(3),P(n,num(2))));break;case'abs':o=F('sign',u);break;default:o=num(0)}
+  return M(o,du)}}}
+const fmtN=v=>Number.isInteger(v)?String(v):String(parseFloat(v.toPrecision(6)));
+function pr(n,pc){pc=pc||0;let s,q;
+ switch(n.t){case'n':s=fmtN(Math.abs(n.v));q=5;if(n.v<0){s='-'+s;q=3}break;
+  case'c':s=n.n==='pi'?'\u03c0':'e';q=5;break;case'x':s='x';q=5;break;
+  case'neg':s='-'+pr(n.a,2);q=3;break;case'fn':s=n.n+'('+pr(n.a,0)+')';q=5;break;
+  default:{const o=n.op;
+   if(o==='+'||o==='-'){s=pr(n.a,1)+' '+o+' '+pr(n.b,o==='+'?1:2);q=1}
+   else if(o==='*'){const imp=isN(n.a)&&(n.b.t==='x'||n.b.t==='fn'||n.b.t==='c'||(n.b.t==='b'&&n.b.op==='^'));s=pr(n.a,2)+(imp?'':'\u00b7')+pr(n.b,2);q=2}
+   else if(o==='/'){s=pr(n.a,2)+'/'+pr(n.b,3);q=2}
+   else{s=pr(n.a,5)+'^'+pr(n.b,5);q=4}}}
+ return q<pc?'('+s+')':s}
+/*PARSER-END*/
+
+const $=id=>document.getElementById(id),cv=$('cv'),c=cv.getContext('2d');
+const PRE=[['x\u00b3 \u2212 3x','x^3 - 3x',-2.5,2.5],['sin(x)','sin(x)',-6.5,6.5],['x\u00b7e^(\u2212x\u00b2)','x*e^(-x^2)',-3.5,3.5],['x\u2074 \u2212 4x\u00b2','x^4 - 4x^2',-3,3],['(x\u22121)(x\u22122)\u00b2','(x-1)(x-2)^2',-1,4],['ln(x)','ln(x)',.1,6],['1/x','1/x',-4,4],['x\u00b7sin(x)','x*sin(x)',-8,8]];
+let W=0,H=0,dpr=1,st=null,x0=0,playing=false,t0=0,raf=0;
+const colors=()=>{const s=getComputedStyle(document.documentElement),g=q=>s.getPropertyValue(q).trim();return{ink:g('--ink'),muted:g('--muted'),line:g('--line'),blue:g('--blue'),pink:g('--pink'),teal:g('--teal'),violet:g('--violet'),card:g('--card')}};
+const nice=(r,cnt)=>{const raw=r/cnt,p=Math.pow(10,Math.floor(Math.log10(raw))),q=raw/p;return(q<1.5?1:q<3?2:q<7?5:10)*p};
+const tf=v=>String(parseFloat(v.toPrecision(4))),f3=v=>Number.isFinite(v)?(Math.abs(v)<5e-4?0:v).toFixed(3).replace('-','\u2212'):'undefined',ds=s=>s.replace(/-/g,'\u2212');
+
+function yrange(a){
+ const v=a.filter(Number.isFinite).sort((p,q)=>p-q);if(!v.length)return[-1,1];
+ let lo=v[Math.floor(.01*(v.length-1))],hi=v[Math.ceil(.99*(v.length-1))];
+ if(hi-lo<1e-9){lo-=1;hi+=1}
+ if(lo>0&&lo<(hi-lo)*.6)lo=0;if(hi<0&&-hi<(hi-lo)*.6)hi=0;
+ const pad=.1*(hi-lo);return[lo-pad,hi+pad]}
+function roots(g,xl,xr,N){
+ const out=[];let ls=0,lx=xl;
+ for(let i=0;i<=N;i++){const x=xl+(xr-xl)*i/N,v=g(x);if(!Number.isFinite(v)){ls=0;continue}
+  const sg=v>1e-12?1:v<-1e-12?-1:0;if(sg===0)continue;
+  if(ls!==0&&sg!==ls){let a=lx,b=x;for(let k=0;k<50;k++){const m=(a+b)/2,gm=g(m),sm=gm>0?1:gm<0?-1:0;if(sm===ls)a=m;else b=m}
+   const r=(a+b)/2,gr=g(r);
+   if(Number.isFinite(gr)&&Math.abs(gr)<1e-3*(1+Math.abs(g(lx))+Math.abs(v))&&(!out.length||r-out[out.length-1]>(xr-xl)*1e-3))out.push(r)}
+  ls=sg;lx=x}
+ const r=out.slice(0,8);r.more=out.length>8;return r}
+function build(str,xl,xr){
+ const ast=parse(str),a1=diff(ast),a2=diff(a1),f=compile(ast),g1=compile(a1),g2=compile(a2),N=700,fv=[],d1v=[],d2v=[];
+ for(let i=0;i<=N;i++){const x=xl+(xr-xl)*i/N;fv.push(f(x));d1v.push(g1(x));d2v.push(g2(x))}
+ const dl=(xr-xl)*1e-3,crit=roots(g1,xl,xr,2000).map(r=>({x:r,k:g1(r-dl)>g1(r+dl)?'max':'min'})),infl=roots(g2,xl,xr,2000);
+ return{ast:ast,a1:a1,a2:a2,f:f,g1:g1,g2:g2,xl:xl,xr:xr,fv:fv,d1v:d1v,d2v:d2v,yr:[yrange(fv),yrange(d1v),yrange(d2v)],crit:crit,infl:infl,N:N}}
+
+function draw(){
+ if(!W||!st)return;const k=colors();c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,W,H);c.lineCap='round';c.lineJoin='round';
+ const xp=56,w=W-76,ph=(H-124)/3,tops=[30,30+ph+34,30+2*(ph+34)],xl=st.xl,xr=st.xr,N=st.N;
+ const X=u=>xp+(u-xl)/(xr-xl)*w;
+ const line=(x1,y1,x2,y2,col,lw,d)=>{c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.strokeStyle=col;c.lineWidth=lw;c.setLineDash(d||[]);c.stroke();c.setLineDash([])};
+ const text=(s,x,y,col,al,sz)=>{c.font='500 '+(sz||11)+'px system-ui,sans-serif';c.fillStyle=col;c.textAlign=al||'center';c.textBaseline='middle';c.fillText(s,x,y)};
+ const P=[{v:st.fv,s:st.d1v,t:'f(x)  \u00b7  the original',fn:st.f},{v:st.d1v,s:st.d2v,t:'f\u2032(x)  \u00b7  the slope of f',fn:st.g1},{v:st.d2v,s:null,t:'f\u2033(x)  \u00b7  how fast the slope changes',fn:st.g2}];
+ const fx=st.f(x0),d1=st.g1(x0),d2=st.g2(x0),cur=[fx,d1,d2],slopes=[d1,d2,NaN];
+ P.forEach((p,i)=>{
+  const yr=st.yr[i],top=tops[i],Y=v=>top+ph-(v-yr[0])/(yr[1]-yr[0])*ph,sx=w/(xr-xl),sy=ph/(yr[1]-yr[0]);
+  const sy_=nice(yr[1]-yr[0],4),xs=nice(xr-xl,7);
+  for(let v=Math.ceil(yr[0]/sy_-1e-9)*sy_;v<=yr[1]+1e-9;v+=sy_){line(xp,Y(v),xp+w,Y(v),Math.abs(v)<sy_*1e-6?k.muted:k.line,Math.abs(v)<sy_*1e-6?1.5:1);text(tf(v),xp-7,Y(v),k.muted,'right',10)}
+  for(let u=Math.ceil(xl/xs-1e-9)*xs;u<=xr+1e-9;u+=xs){line(X(u),top,X(u),top+ph,k.line,1);if(i===2)text(tf(u),X(u),top+ph+13,k.muted,'center',10)}
+  if(xl<0&&xr>0)line(X(0),top,X(0),top+ph,k.muted,1.5);
+  line(xp,top,xp,top+ph,k.muted,1.5);text(p.t,xp,top-11,k.ink,'left',13);
+  c.save();c.beginPath();c.rect(xp,top-2,w,ph+4);c.clip();
+  for(let j=0;j<N;j++){const a=p.v[j],b=p.v[j+1];if(!Number.isFinite(a)||!Number.isFinite(b)||Math.abs(Y(a)-Y(b))>ph*.6)continue;
+   const sg=p.s?p.s[j]:NaN;line(X(xl+(xr-xl)*j/N),Y(a),X(xl+(xr-xl)*(j+1)/N),Y(b),p.s?(sg>=0?k.teal:k.pink):k.violet,3.4)}
+  const mark=(xv,yv,lab)=>{c.beginPath();c.arc(X(xv),Y(yv),6,0,TAU);c.strokeStyle=k.ink;c.lineWidth=2;c.stroke();if(lab)text(lab,X(xv),Y(yv)+(lab==='max'?-14:15),k.muted,'center',11)};
+  if(i===0){st.crit.forEach(r=>mark(r.x,st.f(r.x),r.k));st.infl.forEach(r=>mark(r,st.f(r),''))}
+  if(i===1)st.crit.forEach(r=>mark(r.x,0,''));
+  if(i===2)st.infl.forEach(r=>mark(r,0,''));
+  if(i<2&&Number.isFinite(cur[i])&&Number.isFinite(slopes[i])){const n=Math.hypot(sx,slopes[i]*sy),dx=sx/n*42,dy=-slopes[i]*sy/n*42,px=X(x0),py=Y(cur[i]);line(px-dx,py-dy,px+dx,py+dy,i?k.violet:k.blue,3)}
+  c.restore();
+  if(Number.isFinite(cur[i])){c.beginPath();c.arc(X(x0),Y(cur[i]),7,0,TAU);c.fillStyle=k.ink;c.fill();c.strokeStyle=k.card;c.lineWidth=2;c.stroke()}
+ });
+ line(X(x0),tops[0],X(x0),tops[2]+ph,k.muted,1.5,[4,4]);
+ const s1=Number.isFinite(d1)?(Math.abs(d1)<.02?'flat (a peak, a valley or a flat spot)':d1>0?'rising':'falling'):'not defined here',s2=Number.isFinite(d2)?(Math.abs(d2)<.04?'about to switch how it bends':d2>0?'curving up':'curving down'):'not defined here';
+ $('rd').innerHTML='x = '+f3(x0)+' \u00b7 f = '+f3(fx)+' \u00b7 f\u2032 = <span class="k1">'+f3(d1)+'</span> \u2192 f is <b>'+s1+'</b> \u00b7 f\u2033 = <span class="k4">'+f3(d2)+'</span> \u2192 f is <b>'+s2+'</b>';
+}
+function summary(){
+ const l=a=>a.length?a.map(r=>'x \u2248 '+f3(r.x!==undefined?r.x:r).replace(/0+$/,'').replace(/\.$/,'')+(r.k?' ('+r.k+')':'')).join(', ')+(a.more?', … and more':''):'none in this window';
+ $('sum').innerHTML='<b>Peaks and valleys</b> (f\u2032 = 0): '+l(st.crit)+'<br><b>Bends</b> (f\u2033 = 0, where f changes how it curves): '+l(st.infl)}
+function forms(){
+ $('forms').innerHTML='<b>f(x)</b>&nbsp; = '+ds(pr(st.ast))+'<br><b class="k1">f\u2032(x)</b> = '+ds(pr(st.a1))+'<br><b class="k4">f\u2033(x)</b> = '+ds(pr(st.a2))}
+function pickX(){const d=(st.xr-st.xl)/400;for(let k=0;k<=400;k++)for(const sg of[1,-1]){const x=x0+sg*k*d;if(x>=st.xl&&x<=st.xr&&Number.isFinite(st.f(x))&&Number.isFinite(st.g1(x))&&Number.isFinite(st.g2(x))){x0=x;return}}}
+function setSlider(){const s=$('s1');s.min=st.xl;s.max=st.xr;s.step=(st.xr-st.xl)/1000;if(x0<st.xl||x0>st.xr)x0=(st.xl+st.xr)/2;s.value=x0;$('v1').textContent=f3(x0)}
+function stop(){playing=false;cancelAnimationFrame(raf);$('play').innerHTML='&#9654;'}
+function apply(){
+ const str=$('fx').value,xl=parseFloat($('xl').value),xr=parseFloat($('xr').value),e=$('err');
+ try{if(!(xl<xr))throw Error('the "x from" value must be smaller than the "x to" value');
+  st=build(str,xl,xr);e.hidden=true;$('fx').classList.remove('bad');
+  if(x0<xl||x0>xr)x0=(xl+xr)/2;pickX();setSlider();forms();summary();draw()}
+ catch(err){e.hidden=false;e.textContent='I could not read that: '+err.message+'.';$('fx').classList.add('bad')}
+}
+function fit(){const w=cv.parentElement.clientWidth;if(!w)return;dpr=Math.min(window.devicePixelRatio||1,2);W=w;H=w<560?500:580;cv.style.height=H+'px';cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);draw()}
+function tick(ts){if(!playing)return;const p=Math.min(1,(ts-t0)/14000);x0=st.xl+(st.xr-st.xl)*p;$('s1').value=x0;$('v1').textContent=f3(x0);draw();if(p>=1)stop();else raf=requestAnimationFrame(tick)}
+$('play').onclick=()=>{if(!st)return;if(playing){stop();return}const p0=(x0-st.xl)/(st.xr-st.xl);playing=true;$('play').innerHTML='&#10074;&#10074;';t0=performance.now()-(p0>=.995?0:p0)*14000;raf=requestAnimationFrame(tick)};
+$('s1').oninput=e=>{stop();x0=+e.target.value;$('v1').textContent=f3(x0);draw()};
+$('fx').oninput=()=>{stop();apply()};$('xl').onchange=$('xr').onchange=()=>{stop();apply()};
+$('chips').innerHTML=PRE.map((p,i)=>'<button data-i="'+i+'">'+p[0]+'</button>').join('');
+$('chips').onclick=e=>{const b=e.target.closest('button');if(!b)return;const p=PRE[+b.dataset.i];stop();$('fx').value=p[1];$('xl').value=p[2];$('xr').value=p[3];x0=(p[2]+p[3])/2;apply()};
+$('xl').value=-2.5;$('xr').value=2.5;x0=0;apply();
+new ResizeObserver(fit).observe(cv.parentElement);fit();
+})();
+</script>
+</body>
+</html>
