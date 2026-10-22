@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calculus Plotter</title>
+<style>
+:root{color-scheme:light;--bg:#e9eef5;--card:#f7f9fc;--well:#eceff6;--ink:#161b28;--muted:#5d6980;--line:#d5dce8;--blue:#2563eb;--pink:#e11d74;--teal:#0f9d8a;--amber:#d99200;--on:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0d121c;--card:#151c2a;--well:#1c2638;--ink:#e9eef8;--muted:#98a5bd;--line:#2a3750;--blue:#6e9eff;--pink:#ff6fa8;--teal:#2fd3bd;--amber:#ffc24a;--on:#0b1020}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0d121c;--card:#151c2a;--well:#1c2638;--ink:#e9eef8;--muted:#98a5bd;--line:#2a3750;--blue:#6e9eff;--pink:#ff6fa8;--teal:#2fd3bd;--amber:#ffc24a;--on:#0b1020}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:860px;margin:0 auto;padding:22px 16px 36px}
+h1{font:700 clamp(28px,6vw,38px)/1.1 "Avenir Next","Segoe UI Variable Display","Segoe UI",system-ui,sans-serif;letter-spacing:-.03em;margin:0 0 4px}
+.sub{color:var(--muted);margin:0 0 16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:14px 10px;background:var(--well);border-bottom:1px solid var(--line);text-align:center}
+.stats div{min-width:0}.stats span{display:block;font-size:12.5px;color:var(--muted)}.stats b{display:block;font-size:19px;font-weight:650;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.chart{position:relative}
+canvas{display:block;width:100%}
+.play{position:absolute;top:12px;right:12px;width:44px;height:44px;border-radius:50%;border:0;background:var(--well);color:var(--ink);font-size:16px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.panel{padding:16px 18px 18px;border-top:1px solid var(--line);background:var(--well)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 18px}
+.grid>div[hidden]{display:none}
+label{display:block;font-size:14px;color:var(--muted);margin-bottom:6px}
+.seg{display:flex;background:var(--bg);border-radius:999px;padding:4px;gap:2px}
+.seg button{flex:1;min-height:40px;border:0;border-radius:999px;background:transparent;color:var(--muted);font:inherit;font-size:14px;font-weight:600;cursor:pointer;padding:0 8px}
+.seg button.on{background:var(--blue);color:var(--on)}
+.sel{position:relative}
+.sel::after{content:"\25BE";position:absolute;right:14px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--muted)}
+select{width:100%;min-height:44px;padding:0 34px 0 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;font-size:15px;appearance:none;-webkit-appearance:none}
+.sl{display:flex;align-items:center;gap:12px}
+input[type=range]{flex:1;min-height:44px;accent-color:var(--blue);margin:0}
+.val{min-width:46px;text-align:right;font-weight:600;font-variant-numeric:tabular-nums}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.note{color:var(--muted);font-size:13.5px;margin:12px 2px 0}
+@media (max-width:560px){.grid{grid-template-columns:1fr}.stats b{font-size:16px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Calculus Plotter</h1>
+<p class="sub">Slide, pick a function and press play to explore Riemann sums and the limit that defines the derivative.</p>
+<div class="card">
+<div class="stats" id="stats"></div>
+<div class="chart"><canvas id="cv" role="img" aria-label="Interactive graph"></canvas><button class="play" id="play" aria-label="Play animation">&#9654;</button></div>
+<div class="panel"><div class="grid">
+<div><label>Simulation Concept</label><div class="seg" id="seg"><button data-m="deriv">Derivative &amp; Limit</button><button data-m="riemann" class="on">Riemann Integral</button></div></div>
+<div><label for="fn">Target Function</label><div class="sel"><select id="fn"></select></div></div>
+<div><label for="s1" id="l1"></label><div class="sl"><input type="range" id="s1"><span class="val" id="v1"></span></div></div>
+<div><label for="sel2" id="l2"></label><div class="sel"><select id="sel2"></select></div></div>
+<div id="g3"><label for="s3" id="l3"></label><div class="sl"><input type="range" id="s3" min="0" max="100" step="1"><span class="val" id="v3"></span></div></div>
+</div></div>
+</div>
+<p class="note" id="note"></p>
+</div>
+<noscript><p style="padding:16px">This tool needs JavaScript. Open the file in a web browser.</p></noscript>
+<script>
+(()=>{
+const $=id=>document.getElementById(id),cv=$('cv'),c=cv.getContext('2d'),TAU=Math.PI*2;
+const FN=[
+ {n:'f(x) = 0.1x\u00b3 \u2212 0.8x\u00b2 + 1.8x + 0.8',f:x=>.1*x*x*x-.8*x*x+1.8*x+.8,d:x=>.3*x*x-1.6*x+1.8,F:x=>.025*x**4-.8/3*x**3+.9*x*x+.8*x,a:.5,b:6,v:[0,6.6],dm:[.02,6.5],x:.67},
+ {n:'f(x) = x\u00b2',f:x=>x*x,d:x=>2*x,F:x=>x**3/3,a:0,b:3,v:[0,3.3],dm:[0,3.3],x:1},
+ {n:'f(x) = sin(x) + 1.5',f:x=>Math.sin(x)+1.5,d:Math.cos,F:x=>-Math.cos(x)+1.5*x,a:0,b:TAU,v:[0,6.6],dm:[0,6.6],x:1},
+ {n:'f(x) = e^(x/2)',f:x=>Math.exp(x/2),d:x=>Math.exp(x/2)/2,F:x=>2*Math.exp(x/2),a:0,b:4,v:[0,4.4],dm:[0,4.4],x:1},
+ {n:'f(x) = \u221ax',f:Math.sqrt,d:x=>.5/Math.sqrt(x),F:x=>2/3*Math.pow(x,1.5),a:0,b:4,v:[0,4.4],dm:[.15,4.4],x:1},
+ {n:'f(x) = 1/x',f:x=>1/x,d:x=>-1/(x*x),F:Math.log,a:1,b:5,v:[.5,5.4],dm:[.6,5.3],x:1.5}
+];
+const METH=['Left Sum','Right Sum','Midpoint','Trapezoid'],SIDE=['Right (h > 0)','Left (h < 0)'];
+let W=0,H=0,dpr=1,mode='riemann',fi=0,n=10,meth=0,x0=0,hs=16,hs0=16,side=1,playing=false,t0=0,raf=0;
+const colors=()=>{const s=getComputedStyle(document.documentElement),g=q=>s.getPropertyValue(q).trim();return{ink:g('--ink'),muted:g('--muted'),line:g('--line'),blue:g('--blue'),pink:g('--pink'),teal:g('--teal'),amber:g('--amber'),card:g('--card')}};
+const nice=(r,cnt)=>{const raw=r/cnt,p=Math.pow(10,Math.floor(Math.log10(raw))),q=raw/p;return(q<1.5?1:q<3?2:q<7?5:10)*p};
+const f4=v=>(Math.abs(v)<5e-5?0:v).toFixed(4).replace('-','\u2212'),f3=v=>(Math.abs(v)<5e-4?0:v).toFixed(3).replace('-','\u2212');
+const rgba=(h,a)=>{const m=parseInt(h.slice(1),16);return'rgba('+(m>>16&255)+','+(m>>8&255)+','+(m&255)+','+a+')'};
+
+function geo(){const F=FN[fi],hm=(F.dm[1]-F.dm[0])*.35,h0=hm*Math.pow(.001/hm,hs/100);let q=Math.min(F.dm[1],Math.max(F.dm[0],x0+side*h0)),h=q-x0;if(Math.abs(h)<1e-6)h=side*1e-6;return{h:h,q:x0+h}}
+function riemann(){const F=FN[fi],dx=(F.b-F.a)/n;let s=0;for(let i=0;i<n;i++){const l=F.a+i*dx,r=l+dx;s+=(meth===0?F.f(l):meth===1?F.f(r):meth===2?F.f((l+r)/2):(F.f(l)+F.f(r))/2)*dx}return s}
+function stats(a){$('stats').innerHTML=a.map(x=>'<div><span>'+x[0]+'</span><b>'+x[1]+'</b></div>').join('')}
+
+function draw(){
+ if(!W)return;const F=FN[fi],k=colors(),m={l:46,r:16,t:20,b:30};
+ c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,W,H);c.lineCap='round';c.lineJoin='round';
+ const vx0=F.v[0],vx1=F.v[1],ys=[];for(let i=0;i<=240;i++)ys.push(F.f(vx0+(vx1-vx0)*i/240));
+ const y0=Math.min(0,Math.min.apply(null,ys)),y1=Math.max.apply(null,ys)*1.12;
+ const X=x=>m.l+(x-vx0)/(vx1-vx0)*(W-m.l-m.r),Y=y=>H-m.b-(y-y0)/(y1-y0)*(H-m.t-m.b);
+ const line=(x1,y1_,x2,y2,col,w,d)=>{c.beginPath();c.moveTo(x1,y1_);c.lineTo(x2,y2);c.strokeStyle=col;c.lineWidth=w;c.setLineDash(d||[]);c.stroke();c.setLineDash([])};
+ const text=(s,x,y,col,al,sz)=>{c.font='500 '+(sz||12)+'px system-ui,sans-serif';c.fillStyle=col;c.textAlign=al||'center';c.textBaseline='middle';c.fillText(s,x,y)};
+ const sy=nice(y1-y0,6),dy=Math.max(0,-Math.floor(Math.log10(sy)));
+ for(let v=Math.ceil(y0/sy-1e-9)*sy;v<=y1+1e-9;v+=sy){line(m.l,Y(v),W-m.r,Y(v),k.line,1,[4,5]);text(v.toFixed(dy),m.l-8,Y(v),k.muted,'right')}
+ const sx=nice(vx1-vx0,8),dx2=Math.max(0,-Math.floor(Math.log10(sx)));
+ for(let v=Math.ceil(vx0/sx-1e-9)*sx;v<=vx1+1e-9;v+=sx){line(X(v),H-m.b,X(v),H-m.b+5,k.muted,1);text(v.toFixed(dx2),X(v),H-m.b+17,k.muted)}
+ line(m.l,m.t-6,m.l,H-m.b,k.muted,1.5);line(m.l,H-m.b,W-m.r,H-m.b,k.muted,1.5);
+ c.save();c.beginPath();c.rect(m.l,m.t-6,W-m.l-m.r+2,H-m.t-m.b+8);c.clip();
+ if(mode==='riemann'){
+  const dx=(F.b-F.a)/n,pw=dx/(vx1-vx0)*(W-m.l-m.r),st=pw>3.5;
+  for(let i=0;i<n;i++){const l=F.a+i*dx,r=l+dx;c.beginPath();
+   if(meth===3){c.moveTo(X(l),Y(0));c.lineTo(X(l),Y(F.f(l)));c.lineTo(X(r),Y(F.f(r)));c.lineTo(X(r),Y(0))}
+   else{const h=meth===0?F.f(l):meth===1?F.f(r):F.f((l+r)/2);c.rect(X(l),Y(h),X(r)-X(l),Y(0)-Y(h))}
+   c.closePath();c.fillStyle=rgba(k.blue,.28);c.fill();if(st){c.strokeStyle=k.blue;c.lineWidth=1.2;c.stroke()}}
+ }
+ c.beginPath();for(let i=0;i<=400;i++){const x=vx0+(vx1-vx0)*i/400,y=F.f(x);i?c.lineTo(X(x),Y(y)):c.moveTo(X(x),Y(y))}c.strokeStyle=k.ink;c.lineWidth=2.6;c.stroke();
+ if(mode==='deriv'){
+  const g=geo(),fx=F.f(x0),fq=F.f(g.q),sl=(fq-fx)/g.h,td=F.d(x0);
+  line(X(vx0),Y(fx+sl*(vx0-x0)),X(vx1),Y(fx+sl*(vx1-x0)),k.amber,3.4,[1,8]);
+  line(X(vx0),Y(fx+td*(vx0-x0)),X(vx1),Y(fx+td*(vx1-x0)),k.teal,2.8);
+  const big=Math.abs(g.h)>(vx1-vx0)*.02;
+  if(big){line(X(x0),Y(fx),X(g.q),Y(fx),k.blue,1.6);line(X(g.q),Y(fx),X(g.q),Y(fq),k.blue,1.6);
+   text('\u0394x',(X(x0)+X(g.q))/2,Y(fx)+(fq>=fx?14:-14),k.blue,'center',13);text('\u0394y',X(g.q)+(g.h>0?16:-16),(Y(fx)+Y(fq))/2,k.blue,'center',13)}
+  for(const p of[[x0,fx,k.teal],[g.q,fq,k.amber]]){c.beginPath();c.arc(X(p[0]),Y(p[1]),6.5,0,TAU);c.fillStyle=p[2];c.fill();c.strokeStyle=k.card;c.lineWidth=2;c.stroke()}
+ }
+ c.restore();
+ text('f(x)',X(vx1-(vx1-vx0)*.06),Math.max(m.t+8,Y(F.f(vx1-(vx1-vx0)*.06))-14),k.ink,'center',13);
+ if(mode==='riemann'){const ap=riemann(),ex=F.F(F.b)-F.F(F.a);stats([['Rectangles',n],['Approx. Area',f3(ap)],['Exact Area',f3(ex)],['Error',f3(Math.abs(ex-ap))]])}
+ else{const g=geo(),sl=(F.f(g.q)-F.f(x0))/g.h,td=F.d(x0);stats([['Point x',x0.toFixed(2)],['f\u2032(x) (Slope)',f3(td)],['Secant slope',f3(sl)],['\u0394x (Limit Step)',f3(g.h)]])}
+}
+function fit(){const w=cv.parentElement.clientWidth;if(!w)return;dpr=Math.min(window.devicePixelRatio||1,2);W=w;H=Math.round(Math.min(Math.max(w*.52,260),400));cv.style.height=H+'px';cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);draw()}
+
+function opts(el,arr,i){el.innerHTML=arr.map((t,j)=>'<option value="'+j+'">'+t+'</option>').join('');el.value=i}
+function setFn(){const F=FN[fi];x0=F.x;if(mode==='deriv'){const s=$('s1');s.min=F.dm[0];s.max=F.dm[1];s.step=(F.dm[1]-F.dm[0])/400;s.value=x0}}
+function sync(){
+ const r=mode==='riemann';
+ [...$('seg').children].forEach(b=>b.classList.toggle('on',b.dataset.m===mode));
+ $('l1').textContent=r?'Number of Rectangles':'Tangent Point Position (x)';$('l2').textContent=r?'Sum Interval Alignment':'Q approaches P from';$('g3').hidden=r;$('l3').textContent='Limit Step \u0394x (drag toward 0)';
+ const s=$('s1');if(r){s.min=1;s.max=100;s.step=1;s.value=n}else{const F=FN[fi];s.min=F.dm[0];s.max=F.dm[1];s.step=(F.dm[1]-F.dm[0])/400;s.value=x0}
+ opts($('sel2'),r?METH:SIDE,r?meth:(side>0?0:1));$('s3').value=hs;vals();
+ $('note').textContent=r?'Left and right sums bracket the exact area when the function only rises or only falls. More rectangles shrink the error, and the midpoint and trapezoid rules shrink it fastest.':'The solid green tangent line touches the curve only at P. The dotted yellow secant line passes through P and a second point Q, a step \u0394x away, and the blue triangle shows its rise \u0394y over its run \u0394x. Press play to slide P along the curve, then watch \u0394x shrink until the secant swings into the tangent.';
+}
+function vals(){$('v1').textContent=mode==='riemann'?n:x0.toFixed(2);$('v3').textContent=mode==='deriv'?f3(geo().h):''}
+function stop(){playing=false;cancelAnimationFrame(raf);$('play').innerHTML='&#9654;'}
+function tick(ts){
+ if(!playing)return;const D=mode==='riemann'?6500:11000,p=Math.min(1,(ts-t0)/D);
+ if(mode==='riemann'){n=Math.max(1,Math.round(Math.pow(100,p)));$('s1').value=n}
+ else{const F=FN[fi],xa=F.dm[0],xb=F.dm[1],u=Math.min(1,p/.75),e=Math.max(0,(p-.75)/.25);
+  x0=xa+(xb-xa)*u;hs=hs0+(100-hs0)*e*e*(3-2*e);$('s1').value=x0;$('s3').value=hs}
+ vals();draw();if(p>=1)stop();else raf=requestAnimationFrame(tick)
+}
+$('play').onclick=()=>{if(playing){stop();return}
+ if(mode==='riemann'&&n>=100)n=1;
+ if(mode==='deriv')hs0=hs>=90?16:hs;
+ const D=mode==='riemann'?6500:11000,p0=mode==='riemann'?Math.log(n)/Math.log(100):0;
+ playing=true;$('play').innerHTML='&#10074;&#10074;';t0=performance.now()-p0*D;raf=requestAnimationFrame(tick)};
+$('seg').onclick=e=>{const b=e.target.closest('button');if(!b||b.dataset.m===mode)return;stop();mode=b.dataset.m;sync();draw()};
+$('fn').onchange=e=>{stop();fi=+e.target.value;setFn();sync();draw()};
+$('s1').oninput=e=>{stop();if(mode==='riemann')n=+e.target.value;else x0=+e.target.value;vals();draw()};
+$('sel2').onchange=e=>{stop();if(mode==='riemann')meth=+e.target.value;else side=+e.target.value?-1:1;vals();draw()};
+$('s3').oninput=e=>{stop();hs=+e.target.value;hs0=hs;vals();draw()};
+opts($('fn'),FN.map(q=>q.n),0);setFn();sync();
+new ResizeObserver(fit).observe(cv.parentElement);fit();
+})();
+</script>
+</body>
+</html>
